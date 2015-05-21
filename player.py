@@ -1,6 +1,7 @@
 from gameimage import GameImage
 from tile import TILE_SIZE
 from partymember import PartyMember
+from inventory import Inventory
 from pygame import Surface, Rect, Color
 
 import random
@@ -15,7 +16,8 @@ class Player(GameImage):
 		self.world_image.fill(Color("#FF0000"))
 		self.world = world
 		self.button_press_map = DEFAULT_BUTTON_PRESS_MAP
-		self.party = [PartyMember("Bernard", 10), PartyMember("Daniel", 8), PartyMember("Staniel", 12)]
+		self.party = [PartyMember("Bernard", 10, 4, 4), PartyMember("Daniel", 8, 5, 5), PartyMember("Staniel", 12, 6, 6)] #TEMP
+		self.inventory = Inventory()
 
 	def update(self):
 		up, down, left, right = self.button_press_map[UP], self.button_press_map[DOWN], self.button_press_map[LEFT], self.button_press_map[RIGHT]
@@ -27,7 +29,7 @@ class Player(GameImage):
 		self.roll_encounter(tile)
 
 	def deactivate(self):
-		self.button_press_map[UP], self.button_press_map[DOWN], self.button_press_map[LEFT], self.button_press_map[RIGHT]
+		self.button_press_map[UP], self.button_press_map[DOWN], self.button_press_map[LEFT], self.button_press_map[RIGHT] = False, False, False, False
 
 	def roll_encounter(self, tile):
 		roll = random.random()
@@ -42,5 +44,12 @@ class Player(GameImage):
 	def current_tile(self):
 		x, y = self.rect.left/TILE_SIZE, self.rect.top/TILE_SIZE
 		return self.world.tile_at(x, y)
+
+	def enqueue_action(self, index, key, target = None):
+		actor = self.party[index]
+		actor.enqueue_action(key, target)
+
+	def party_member_count(self):
+		return len(self.party)
 
 DEFAULT_BUTTON_PRESS_MAP = {UP:False, DOWN:False, LEFT:False, RIGHT:False}

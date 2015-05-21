@@ -3,6 +3,10 @@ from camera import WIN_WIDTH, WIN_HEIGHT
 from pygame import Surface, Color
 
 WHITE = Color("#FFFFFF")
+BLACK = Color("#000000")
+RED = Color("#FF0000")
+BLUE = Color("#0000FF")
+ORANGE = Color("#FFBB00")
 
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 DEPTH = 32

@@ -1,6 +1,8 @@
 from controlmanager import ControlManager
 from battlecontrols import BattleControls
 from battlescreen import BattleScreen
+from worldcontrols import WorldControls
+from worldscreen import WorldScreen
 
 class ScreenManager:
 	""" ScreenManager ( Surface, GameScreen, Player ) -> ScreenManager
@@ -64,3 +66,11 @@ class ScreenManager:
 		control_manager = ControlManager(controls)
 		battle_screen = BattleScreen(control_manager, player, monsters, tile)
 		self.set_current_screen(battle_screen)
+
+	def switch_to_world_screen(self, player):
+		controls = WorldControls(player)
+		control_manager = ControlManager(controls)
+		world_screen = WorldScreen(control_manager, player)
+		self.set_current_screen(world_screen)
+		player.world.initialize_screen(self, world_screen)
+		#print player.rect

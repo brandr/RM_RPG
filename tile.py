@@ -23,15 +23,14 @@ class Tile(GameImage):
 			roll = random.random()
 			if roll < roll_goal: monsters.append(self.roll_monster())
 			else: break
-		for m in monsters: print m.key
 		party = MonsterParty(monsters)
 		return party
 
 	def roll_monster(self):
 		roll_goal = 0
+		roll = random.random()
 		for data in self.encounter_data:
 			roll_goal += data[0]
-			roll = random.random()
 			if roll < roll_goal:
 				key = data[1]
 				break
@@ -39,5 +38,5 @@ class Tile(GameImage):
 		return monster
 
 DEFAULT_ENCOUNTER_DATA = [
-	(.5, SPARROW), (.5, GRASS_BEING)
+	(.4, SPARROW), (.5, GRASS_BEING), (.1, ALPHA_BEETLE)
 ]
