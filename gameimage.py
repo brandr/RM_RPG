@@ -26,3 +26,6 @@ def load_image_file(path, name, colorkey = DEFAULT_COLORKEY):
 class GameImage(pygame.sprite.Sprite):
 	def __init__(self):
 		pygame.sprite.Sprite.__init__(self)
+
+	def refresh_mask(self):
+		self.mask = pygame.mask.from_surface(self.image)

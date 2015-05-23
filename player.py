@@ -2,11 +2,13 @@ from gameimage import GameImage
 from tile import TILE_SIZE
 from partymember import PartyMember
 from inventory import Inventory
+from gamescreen import LIGHT_BLUE
+import pygame
 from pygame import Surface, Rect, Color
-
 import random
 
 UP, DOWN, LEFT, RIGHT = "up", "down", "left", "right"
+ENCOUNTER_MEAN, ENCOUNTER_SD = 700, 200
 
 class Player(GameImage):
 	def __init__(self, world):
@@ -14,35 +16,69 @@ class Player(GameImage):
 		self.world_image = Surface((16, 16))
 		self.rect = Rect(0, 0, 16, 16)
 		self.world_image.fill(Color("#FF0000"))
+		self.image = Surface((16, 16))
+		self.image.blit(self.world_image, (0, 0))
+		self.mask = pygame.mask.from_surface(self.image)
 		self.world = world
 		self.button_press_map = DEFAULT_BUTTON_PRESS_MAP
-		self.party = [PartyMember("Bernard", 10, 4, 4), PartyMember("Daniel", 8, 5, 5), PartyMember("Staniel", 12, 6, 6)] #TEMP
+		self.party = [PartyMember("Bernard", 20, 8, 3), PartyMember("Daniel", 15, 1, 5), PartyMember("Staniel", 25, 1, 3)] #TEMP
+		self.xvel, self.yvel = 0, 0
 		self.inventory = Inventory()
+		self.reset_encounter_timer()
+		self.totem_contact = False
 
 	def update(self):
+		self.xvel, self.yvel = 0, 0
 		up, down, left, right = self.button_press_map[UP], self.button_press_map[DOWN], self.button_press_map[LEFT], self.button_press_map[RIGHT]
-		if up and not down: self.rect.top -= 1
-		if down and not up: self.rect.top += 1
-		if left and not right: self.rect.left -= 1
-		if right and not left: self.rect.left += 1
+		if up and not down: self.yvel = -1
+		if down and not up: self.yvel = 1
+		if left and not right: self.xvel = -1
+		if right and not left: self.xvel = 1
+		self.rect.top += self.yvel
+		self.rect.left += self.xvel
 		tile = self.current_tile()
-		self.roll_encounter(tile)
+		self.check_entity_collisions(tile)
+		#TODO: collision checks go here
+		if self.xvel != 0 or self.yvel != 0: self.encounter_update(tile)
 
 	def deactivate(self):
 		self.button_press_map[UP], self.button_press_map[DOWN], self.button_press_map[LEFT], self.button_press_map[RIGHT] = False, False, False, False
 
-	def roll_encounter(self, tile):
-		roll = random.random()
-		if roll < tile.base_encounter_rate/100000.0: 
+	def encounter_update(self, tile):
+		self.encounter_timer -= tile.base_encounter_rate
+		if self.encounter_timer <= 0:
 			monster_party = tile.roll_monster_party()
 			self.begin_encounter(monster_party)
+			self.reset_encounter_timer()
+
+	def reset_encounter_timer(self):
+		self.encounter_timer = random.gauss(ENCOUNTER_MEAN, ENCOUNTER_SD)
 
 	def begin_encounter(self, monsters):
 		self.deactivate()
 		self.world.screen_manager.switch_to_battle_screen(self, monsters, self.current_tile())
 
+	def refresh_tile_flags(self):
+		self.totem_contact = False
+
+	def check_entity_collisions(self, tile):
+		if tile.entity:
+			self.refresh_mask()
+			tile.entity.refresh_mask()
+			if pygame.sprite.collide_rect(self, tile.entity): self.collide_with(tile.entity)
+			else: self.refresh_tile_flags()
+		else: self.refresh_tile_flags()
+
+	def collide_with(self, entity):
+		entity.take_effect(self)
+
+	def begin_heal_flash(self):
+		if self.totem_contact: return
+		self.totem_contact = True
+		self.world.begin_flash(LIGHT_BLUE, 100)
+
 	def current_tile(self):
-		x, y = self.rect.left/TILE_SIZE, self.rect.top/TILE_SIZE
+		x, y = self.rect.centerx/TILE_SIZE, self.rect.centery/TILE_SIZE
 		return self.world.tile_at(x, y)
 
 	def enqueue_action(self, index, key, target = None):

@@ -7,6 +7,8 @@ BLACK = Color("#000000")
 RED = Color("#FF0000")
 BLUE = Color("#0000FF")
 ORANGE = Color("#FFBB00")
+DARK_RED = Color("#BB0000")
+LIGHT_BLUE = Color("#00FFFF")
 
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 DEPTH = 32

@@ -57,6 +57,8 @@ DEFAULT = "default"
 SPARROW = "sparrow"
 GRASS_BEING = "grass_being"
 ALPHA_BEETLE = "alpha_beetle"
+SPIKE_BADGER = "spike_badger"
+SPROUTLING = "sproutling"
 
 MASTER_MONSTER_MAP = {
 	DEFAULT:{
@@ -71,6 +73,7 @@ MASTER_MONSTER_MAP = {
 		IMAGE:"sparrow_1.bmp",
 		NAME:"Sparrow",
 		HITPOINTS:12,
+		DAMAGE:2,
 		SPEED:8
 	},
 	GRASS_BEING:{
@@ -84,6 +87,20 @@ MASTER_MONSTER_MAP = {
 		HITPOINTS:5,
 		DAMAGE:5,
 		SPEED:2
+	},
+	SPIKE_BADGER:{
+		IMAGE:"spike_badger_1.bmp",
+		NAME:"Spike Badger",
+		HITPOINTS:20,
+		DAMAGE:6,
+		SPEED:4
+	},
+	SPROUTLING:{
+		IMAGE:"sproutling_1.bmp",
+		NAME:"Sproutling",
+		HITPOINTS:8,
+		DAMAGE:2,
+		SPEED:4
 	}
 }
 

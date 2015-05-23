@@ -3,20 +3,17 @@
 	- Use the minecraft trick of loading parts of the world before the player reaches them.
 
 # Encounter todos:
-	- only roll for monster encounters when the player is moving
 	- make sure the player can venture onto places with no tiles without crashing the game
 	- if game gets laggy, only roll for monster encounters every few seconds but increase chance of encounter
-	- make more tile types that spawn different types of monsters
 
 # combat todos:
-	- implement damage roll mechanics
+	- make it so party members will choose a new target at random if the one they were going to attack is dead
 	- implement armor
 	- make running away a special case for executed actions
-	- make party member death possible and implement game overs
-	- make it so party members will choose a new target at random if the one they were going to attack is dead
-	- implement lots of monsters (especially the beta beetle)
 	- implement spells
-
+	- implement game overs
+	- implement lots of monsters (especially the beta beetle)
+	
 # Items:
 	- make it possible to use potions
 	- add equipment

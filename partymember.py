@@ -1,4 +1,5 @@
 from battlescreen import ATTACK, SPELLS, ITEMS, RUN
+import random
 
 class PartyMember:
 	def __init__(self, name, hitpoints, mana = 1, speed = 1):
@@ -24,7 +25,9 @@ class PartyMember:
 		self.pending_target.take_damage(damage)
 
 	def roll_damage(self, target):
-		return self.attack_stat
+		base_attack = self.attack_stat #TODO: calculate differently once weapons are added
+		offset = max(1, base_attack/5.0)
+		return max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
 
 	def take_damage(self, damage):
 		self.hitpoints[0] = max(0, self.hitpoints[0] - damage)

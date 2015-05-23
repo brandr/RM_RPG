@@ -1,4 +1,4 @@
-from gamescreen import GameScreen, WHITE, BLACK, RED, BLUE, ORANGE
+from gamescreen import GameScreen, WHITE, BLACK, RED, BLUE, ORANGE, DARK_RED
 from camera import WIN_WIDTH, WIN_HEIGHT
 from battlecontrols import SELECT_ACTION, SELECT_TARGET, SELECT_SPELL, SELECT_ITEM, EXECUTE_ACTIONS
 import pygame
@@ -29,6 +29,7 @@ class BattleScreen(GameScreen):
 		self.width, self.height = WIN_WIDTH, WIN_HEIGHT
 		self.player = player
 		self.monsters = monsters
+		self.init_active_party()
 		self.assign_monster_letters()
 		self.bg = self.generate_bg(tile)
 		self.ui_font = font.Font("./fonts/FreeSansBold.ttf", 16)
@@ -36,11 +37,16 @@ class BattleScreen(GameScreen):
 		self.action_index = 0
 		self.target_index = 0
 		self.item_select_index = 0
-		self.party_turn_index = 0
 		self.pending_action = None
 		self.turn_manager = TurnManager(self)
 		self.misc_message = None
 		self.victory_flag = False
+
+	def init_active_party(self):
+		self.active_party = []
+		for p in self.player.party:
+			if p.hitpoints[0] > 0: self.active_party.append(p)
+		self.reset_party_turn_index()
 
 	def assign_monster_letters(self):
 		alphabet_index = 0
@@ -68,7 +74,6 @@ class BattleScreen(GameScreen):
 		self.turn_manager.update()
 
 	def generate_bg(self, tile):
-		#TODO: generate bg based on tile
 		bg = Surface((WIN_WIDTH, WIN_HEIGHT))
 		bg.fill(tile.bg_color)
 		return bg
@@ -108,9 +113,14 @@ class BattleScreen(GameScreen):
 			name_image = self.ui_font.render(name, True, name_color)
 			data_pane.blit(name_image, (8, y_offset))
 
-			hp_text = "HP: " + str(p.hitpoints[0]) + "/" + str(p.hitpoints[1])
-			hp_image = self.ui_font.render(hp_text, True, ORANGE)
+			if p.hitpoints[0] > 0:
+				hp_text = "HP: " + str(p.hitpoints[0]) + "/" + str(p.hitpoints[1])
+				hp_image = self.ui_font.render(hp_text, True, ORANGE)
+			else:
+				hp_text = "DEAD"
+				hp_image = self.ui_font.render(hp_text, True, DARK_RED)
 			data_pane.blit(hp_image, (110, y_offset))
+			
 
 			mp_text = "MP: " + str(p.mana[0]) + "/" + str(p.mana[1])
 			mp_image = self.ui_font.render(mp_text, True, BLUE)
@@ -190,6 +200,8 @@ class BattleScreen(GameScreen):
 	def confirm_current_action(self):
 		self.player.enqueue_action(self.party_turn_index, self.pending_action, self.monsters.monsters[self.target_index])
 		self.party_turn_index += 1
+		while self.party_turn_index < self.player.party_member_count() and self.player.party[self.party_turn_index].hitpoints[0] <= 0: 
+			self.party_turn_index += 1
 		if self.party_turn_index >= self.player.party_member_count(): 
 			self.begin_executing()
 		else:
@@ -197,9 +209,13 @@ class BattleScreen(GameScreen):
 
 	def begin_executing(self):
 		self.mode = EXECUTE_ACTIONS
-		self.party_turn_index = 0
-		self.turn_manager.set_up_queue(self.monsters.monsters, self.player.party)
+		self.turn_manager.set_up_queue(self.monsters.monsters, self.active_party)
 		self.turn_manager.select_actor(0)
+
+	def reset_party_turn_index(self):
+		self.party_turn_index = 0
+		while self.party_turn_index < self.player.party_member_count() and self.player.party[self.party_turn_index].hitpoints[0] <= 0: 
+			self.party_turn_index += 1
 
 	def select_attack(self):
 		self.mode = SELECT_TARGET
@@ -229,7 +245,7 @@ class TurnManager:
 
 	def set_up_queue(self, monsters, party):
 		for m in monsters: self.turn_queue.append((m.speed, m))
-		for p in party: self.turn_queue.append((p.speed, p))
+		for p in party:	self.turn_queue.append((p.speed, p))
 		self.turn_queue = sorted(self.turn_queue)
 		self.turn_queue.reverse()
 
@@ -237,8 +253,6 @@ class TurnManager:
 		self.time_counter += 1
 		if self.time_counter > TURN_TICKS:
 			self.time_counter = 0
-			#TODO: check to see if there are any more actors. if there are not but monsters are still alive, the player goes back to choosing actions.
-			
 			if self.death_check(): return
 			if self.victory_check(): return
 			if self.actor_counter + 1 >= len(self.turn_queue): 
@@ -251,9 +265,13 @@ class TurnManager:
 		for m in self.screen.monsters.monsters:
 			if m.hitpoints[0] <= 0:
 				self.remove_monster(m)
-				self.screen.misc_message = m.battle_name + " was slain!"
+				self.screen.misc_message = m.battle_name + " was slain!"	#TODO: add to exp and gold rewards here
 				return True
-			#TODO: check party member deaths, too
+		for p in self.screen.active_party:
+			if p.hitpoints[0] <= 0:
+				self.screen.misc_message = p.name + " fell in battle!"
+				self.set_party_member_dead(p)
+				return True
 		return False
 
 	def victory_check(self):
@@ -276,6 +294,7 @@ class TurnManager:
 		self.actor_counter = 0
 		self.time_counter = 0
 		self.screen.mode = SELECT_ACTION
+		self.screen.reset_party_turn_index()
 
 	def remove_monster(self, monster):
 		self.screen.monsters.monsters.remove(monster)
@@ -283,6 +302,13 @@ class TurnManager:
 		for t in self.turn_queue:
 			if t[1] == monster:
 				self.turn_queue.remove(t)
+				return
+
+	def set_party_member_dead(self, party_member):
+		self.screen.active_party.remove(party_member)
+		for p in self.turn_queue:
+			if p[1] == party_member:
+				self.turn_queue.remove(p)
 				return
 
 ATTACK = "Attack"

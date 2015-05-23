@@ -1,5 +1,6 @@
 from gameimage import GameImage
 import random
+import math
 
 class Monster(GameImage):
 	def __init__(self, key):
@@ -14,11 +15,16 @@ class Monster(GameImage):
 		target.take_damage(damage)
 
 	def choose_target(self, player):
-		roll = random.randint(0, len(player.party) - 1)
-		return player.party[roll]
+		active_party = []
+		for p in player.party:
+			if p.hitpoints[0] > 0: active_party.append(p)
+		roll = random.randint(0, len(active_party) - 1)
+		return active_party[roll]
 
 	def roll_damage(self, target):
-		return self.base_attack_damage #TEMP
+		base_attack = self.base_attack_damage
+		offset = max(1, base_attack/5.0)
+		return max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
 
 	def take_damage(self, damage):
 		self.hitpoints[0] = max(0, self.hitpoints[0] - damage)
