@@ -15,7 +15,7 @@ PARTY_DATA_X, PARTY_DATA_Y = UI_X, UI_Y
 PARTY_DATA_WIDTH, PARTY_DATA_HEIGHT = 300, WIN_HEIGHT - UI_Y
 ACTION_OPTIONS_WIDTH, ACTION_OPTIONS_HEIGHT = 110, PARTY_DATA_HEIGHT
 MISC_DATA_WIDTH, MISC_DATA_HEIGHT = WIN_WIDTH - PARTY_DATA_WIDTH - ACTION_OPTIONS_WIDTH, PARTY_DATA_HEIGHT
-MENU_SPACING_WIDTH, MENU_SPACING_HEIGHT = 110, 40
+MENU_SPACING_WIDTH, MENU_SPACING_HEIGHT = 140, 40
 
 class BattleScreen(GameScreen):
 	""" MainGameScreen( ControlManager, Player ) -> MainGameScreen
@@ -183,7 +183,7 @@ class BattleScreen(GameScreen):
 		spells = self.active_party_member().spells
 		for i in xrange(len(spells)):
 			s = spells[i]
-			x, y = i%3, i/3
+			x, y = i%2, i/2
 			spell_name_image = self.ui_font.render(s.name(), True, WHITE)
 			spell_cost_image = self.ui_font.render(str(s.mp_cost()), True, BLUE)
 			pane.blit(spell_name_image, (28 + x*MENU_SPACING_WIDTH, 8 + y*MENU_SPACING_HEIGHT))
@@ -251,7 +251,7 @@ class BattleScreen(GameScreen):
 			self.mode = SELECT_ACTION
 
 	def select_current_spell(self):
-		index = self.spell_index_y*3 + self.spell_index_x
+		index = self.spell_index_y*2 + self.spell_index_x
 		spell = self.active_party_member().spells[int(index)]
 		if spell.mp_cost() > self.active_party_member().mana[0]: return
 		self.active_party_member().pending_spell = spell
@@ -298,13 +298,13 @@ class BattleScreen(GameScreen):
 
 	def current_spell_cols(self):
 		spell_count = self.active_party_member().spell_count()
-		if self.spell_index_y == spell_count/3: return spell_count%3
-		return 3
+		if self.spell_index_y == spell_count/2: return spell_count%2
+		return 2
 
 	def current_spell_rows(self):
 		spell_count = self.active_party_member().spell_count()
-		end_cols = spell_count%3
-		rows = math.ceil(spell_count/3.0)
+		end_cols = spell_count%2
+		rows = math.ceil(spell_count/2.0)
 		if end_cols != 0 and end_cols <= self.spell_index_x: rows -= 1				
 		return rows
 

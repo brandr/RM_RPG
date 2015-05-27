@@ -75,7 +75,7 @@ SUMMON_DATA = "summon_data"
 
 # targeting styles
 SINGLE = "single"
-MISC = "misc"
+MULTIPLE = "multiple"
 
 # spell types
 ATTACK = "attack"
@@ -92,6 +92,7 @@ FIRE = "fire"
 SPARKS = "sparks"
 SUMMON_GRASS_GOLEM = "summon_grass_golem"
 GRASS_ENTANGLEMENT = "grass_entanglement"
+IVY_RAIN = "ivy_rain"
 
 CAST_MAP = {
 	ATTACK:{
@@ -124,7 +125,7 @@ SPELL_DATA_MAP = {
 		MP_COST:6,
 		SUMMON_DATA:{
 			NAME:"G. Golem",
-			HITPOINTS:1,#15,
+			HITPOINTS:15,
 			MANA:2,
 			DAMAGE:3,
 			SPEED:1,
@@ -140,6 +141,13 @@ SPELL_DATA_MAP = {
 		MP_COST:2,
 		DAMAGE:2
 		#TODO: lasting effect: enemies hit by grass entanglement cannot move next turn
+	},
+	IVY_RAIN:{
+		NAME:"Ivy Rain",
+		TARGETING:MULTIPLE,
+		SPELL_TYPE:ATTACK,
+		MP_COST:3,
+		DAMAGE:2
 	}
 }
 
