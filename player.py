@@ -48,6 +48,9 @@ class Player(GameImage):
 	def deactivate(self):
 		self.button_press_map[UP], self.button_press_map[DOWN], self.button_press_map[LEFT], self.button_press_map[RIGHT] = False, False, False, False
 
+	def remove_summons(self):
+		self.summons = []
+
 	def encounter_update(self, tile):
 		self.encounter_timer -= tile.base_encounter_rate
 		if self.encounter_timer <= 0:

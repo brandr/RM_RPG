@@ -124,7 +124,7 @@ SPELL_DATA_MAP = {
 		MP_COST:6,
 		SUMMON_DATA:{
 			NAME:"G. Golem",
-			HITPOINTS:15,
+			HITPOINTS:1,#15,
 			MANA:2,
 			DAMAGE:3,
 			SPEED:1,

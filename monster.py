@@ -8,7 +8,6 @@ class Monster(GameImage):
 		self.key = key
 
 	def execute_action(self, screen):
-		#TEMP. actually have the monster decide an action and make it do something
 		target = self.choose_target(screen.player)
 		damage = self.roll_damage(target)
 		screen.misc_message = self.battle_name + " attacked " + target.name + " for " + str(damage) + " damage!"
@@ -18,6 +17,8 @@ class Monster(GameImage):
 		active_party = []
 		for p in player.party:
 			if p.hitpoints[0] > 0: active_party.append(p)
+		for s in player.summons:
+			if s.hitpoints[0] > 0: active_party.append(s)
 		roll = random.randint(0, len(active_party) - 1)
 		return active_party[roll]
 

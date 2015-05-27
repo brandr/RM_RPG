@@ -18,6 +18,7 @@
 	- add equipment
 
 # Spells:
+	- things to fix: grass golem should not attack after dead and remove golem after fight
 	- if we make enemies that drain MP, make it so the spell is cancelled if you can't afford it by the time you cast it
 		* did this, but it needs testing
 	- give grass entanglement the ability to stop an enemy from attacking for one turn

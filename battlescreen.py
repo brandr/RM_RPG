@@ -139,7 +139,7 @@ class BattleScreen(GameScreen):
 			name_image = self.ui_font.render(name, True, name_color)
 			data_pane.blit(name_image, (8, y_offset))
 
-			if p.hitpoints[0] > 0:
+			if s.hitpoints[0] > 0:
 				hp_text = "HP: " + str(s.hitpoints[0]) + "/" + str(s.hitpoints[1])
 				hp_image = self.ui_font.render(hp_text, True, ORANGE)
 			else:
@@ -310,6 +310,7 @@ class BattleScreen(GameScreen):
 
 	def exit_battle(self):
 		#TODO: calculate experience, gold, item drops, etc. here
+		self.player.remove_summons()
 		self.screen_manager.switch_to_world_screen(self.player)
 
 TURN_TICKS = 100
@@ -352,6 +353,11 @@ class TurnManager:
 				self.screen.misc_message = p.name + " fell in battle!"
 				self.set_party_member_dead(p)
 				return True
+		for s in self.screen.player.summons:
+			if s.hitpoints[0] <= 0:
+				self.screen.misc_message = s.name + " was destroyed!"
+				self.remove_summon(s)
+				return True
 		return False
 
 	def victory_check(self):
@@ -390,6 +396,13 @@ class TurnManager:
 			if p[1] == party_member:
 				self.turn_queue.remove(p)
 				return				
+
+	def remove_summon(self, summon):
+		self.screen.player.summons.remove(summon)
+		for s in self.turn_queue:
+			if s[1] == summon:
+				self.turn_queue.remove(s)
+				return
 
 # spell constants
 SINGLE = "single"
