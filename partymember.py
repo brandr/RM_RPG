@@ -1,15 +1,26 @@
 from battlescreen import ATTACK, SPELLS, ITEMS, RUN
+#from spell import Spell, SPELL_DATA_MAP
 import random
 
 class PartyMember:
-	def __init__(self, name, hitpoints, mana = 1, speed = 1):
-		self.name = name			#TEMP
+	def __init__(self, key = None, party_map = None, spell_factory = None):
+		self.key = key
+		self.party_map = party_map
+		if not party_map or not key in party_map: return
+		data_map = party_map[key]
+		self.name = data_map[NAME]
+		hitpoints = data_map[HITPOINTS]
 		self.hitpoints = [hitpoints, hitpoints]	#TEMP
+		mana = data_map[MANA]
 		self.mana = [mana, mana]
-		self.attack_stat = 3
-		self.speed = speed
+		spells = data_map[SPELLS]
+		self.spells = []
+		for key in spells: self.spells.append(spell_factory.generate_spell(key)) #Spell(key))
+		self.attack_stat = data_map[DAMAGE]
+		self.speed = data_map[SPEED]
 		self.pending_action = None
 		self.pending_target = None
+		self.pending_spell = None
 
 	def enqueue_action(self, key, target = None):
 		self.pending_action = ACTION_MAP[key]
@@ -24,6 +35,9 @@ class PartyMember:
 		screen.misc_message = self.name + " attacked " + self.pending_target.battle_name + " for " + str(damage) + " damage!"
 		self.pending_target.take_damage(damage)
 
+	def cast_spell(self, screen):
+		self.pending_spell.cast(self, screen)
+
 	def roll_damage(self, target):
 		base_attack = self.attack_stat #TODO: calculate differently once weapons are added
 		offset = max(1, base_attack/5.0)
@@ -32,9 +46,26 @@ class PartyMember:
 	def take_damage(self, damage):
 		self.hitpoints[0] = max(0, self.hitpoints[0] - damage)
 
+	def lose_mp(self, mp):
+		self.mana[0] = max(0, self.mana[0] - mp)
+
+	def has_spells(self):
+		return len(self.spells) > 0
+
+	def spell_count(self):
+		return len(self.spells)		
+
 ACTION_MAP = {
 	ATTACK:PartyMember.basic_attack,
-	SPELLS:None,
+	SPELLS:PartyMember.cast_spell,
 	ITEMS:None,
 	RUN:None
 }		
+
+#attributes
+NAME = "name"
+HITPOINTS = "hitpoints"
+MANA = "mana"
+DAMAGE = "damage"
+SPEED = "speed"
+SPELLS = "spells"

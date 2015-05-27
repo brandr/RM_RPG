@@ -3,6 +3,7 @@ from tile import TILE_SIZE
 from partymember import PartyMember
 from inventory import Inventory
 from gamescreen import LIGHT_BLUE
+from spell import *
 import pygame
 from pygame import Surface, Rect, Color
 import random
@@ -21,7 +22,10 @@ class Player(GameImage):
 		self.mask = pygame.mask.from_surface(self.image)
 		self.world = world
 		self.button_press_map = DEFAULT_BUTTON_PRESS_MAP
-		self.party = [PartyMember("Bernard", 20, 8, 3), PartyMember("Daniel", 15, 1, 5), PartyMember("Staniel", 25, 1, 3)] #TEMP
+		#self.party = [PartyMember("Bernard", 20, 8, 3), PartyMember("Daniel", 15, 1, 5), PartyMember("Staniel", 25, 1, 3)] #TEMP
+		spell_factory = SpellFactory()
+		self.party = [PartyMember(BERNARD, PARTY_MEMBER_MAP, spell_factory)]
+		self.summons = []
 		self.xvel, self.yvel = 0, 0
 		self.inventory = Inventory()
 		self.reset_encounter_timer()
@@ -82,10 +86,45 @@ class Player(GameImage):
 		return self.world.tile_at(x, y)
 
 	def enqueue_action(self, index, key, target = None):
-		actor = self.party[index]
+		if index >= len(self.party): actor = self.summons[index - len(self.party)]
+		else: actor = self.party[index]
 		actor.enqueue_action(key, target)
 
 	def party_member_count(self):
 		return len(self.party)
 
+	def summon_count(self):
+		return len(self.summons)
+
+class SpellFactory:
+	def __init__(self):
+		pass
+
+	def generate_spell(self, key):
+		return Spell(key)
+
 DEFAULT_BUTTON_PRESS_MAP = {UP:False, DOWN:False, LEFT:False, RIGHT:False}
+
+#attributes
+NAME = "name"
+HITPOINTS = "hitpoints"
+MANA = "mana"
+DAMAGE = "damage"
+SPEED = "speed"
+SPELLS = "spells"
+
+#party members
+BERNARD = "bernard"
+
+PARTY_MEMBER_MAP = {
+	BERNARD:{
+		NAME:"Bernard",
+		HITPOINTS:20,
+		MANA:10,
+		DAMAGE:1,
+		SPEED:3,
+		SPELLS:[
+			SPARKS, SUMMON_GRASS_GOLEM
+		]
+	}
+}

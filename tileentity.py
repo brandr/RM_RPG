@@ -11,7 +11,9 @@ class TileEntity(GameImage):
 		self.effect(self, target)
 
 	def healing_totem_effect(self, target):	#TODO: add visual effect
-		for p in target.party: p.hitpoints[0] = p.hitpoints[1]
+		for p in target.party: 
+			p.hitpoints[0] = p.hitpoints[1]
+			p.mana[0] = p.mana[1]
 		target.begin_heal_flash()
 
 # attrbitues

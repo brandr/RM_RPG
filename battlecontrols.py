@@ -60,6 +60,12 @@ class BattleControls(Controls):
 		target_count = screen.target_count()
 		screen.target_index = ( screen.target_index + direction[0] ) % target_count
 
+	def move_spell_cursor(self, key):
+		screen = self.control_manager.screen
+		direction = DIRECTION_MAP[key]
+		screen.spell_index_x = ( screen.spell_index_x + direction[0] )%screen.current_spell_cols()
+		screen.spell_index_y = ( screen.spell_index_y + direction[1] )%screen.current_spell_rows()
+
 	def move_item_cursor(self, key):
 		screen = self.control_manager.screen
 		direction = DIRECTION_MAP[key]
@@ -71,6 +77,9 @@ class BattleControls(Controls):
 
 	def select_target(self):
 		self.control_manager.screen.confirm_current_action()
+
+	def select_spell(self):
+		self.control_manager.screen.select_current_spell()
 
 	def battle_state(self):
 		return self.control_manager.screen.mode
@@ -84,16 +93,19 @@ EXECUTE_ACTIONS = "execute_actions"
 BATTLE_MOVE_CURSOR_MAP = {
 	SELECT_ACTION:BattleControls.move_action_cursor,
 	SELECT_TARGET:BattleControls.move_target_cursor,
+	SELECT_SPELL:BattleControls.move_spell_cursor,
 	SELECT_ITEM:BattleControls.move_item_cursor
 }
 
 BATTLE_ENTER_MAP = {
 	SELECT_ACTION:BattleControls.select_action,
-	SELECT_TARGET:BattleControls.select_target
+	SELECT_TARGET:BattleControls.select_target,
+	SELECT_SPELL:BattleControls.select_spell
 }
 
 BATTLE_ESCAPE_MAP = {
 	SELECT_TARGET:BattleControls.return_to_action_select,
+	SELECT_SPELL:BattleControls.return_to_action_select,
 	SELECT_ITEM:BattleControls.return_to_action_select
 }
 

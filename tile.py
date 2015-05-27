@@ -34,7 +34,9 @@ class Tile(GameImage):
 		roll_goal = .4
 		while len(monsters) < MAX_MONSTERS:
 			roll = random.random()
-			if roll < roll_goal: monsters.append(self.roll_monster())
+			if roll < roll_goal: 
+				monsters.append(self.roll_monster())
+				roll_goal = roll_goal*.5
 			else: break
 		party = MonsterParty(monsters)
 		return party

@@ -1,8 +1,10 @@
 from gamescreen import GameScreen, WHITE, BLACK, RED, BLUE, ORANGE, DARK_RED
 from camera import WIN_WIDTH, WIN_HEIGHT
 from battlecontrols import SELECT_ACTION, SELECT_TARGET, SELECT_SPELL, SELECT_ITEM, EXECUTE_ACTIONS
+#from spell import SINGLE, ATTACK
 import pygame
 from pygame import Surface, Color, font
+import math
 
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -13,6 +15,7 @@ PARTY_DATA_X, PARTY_DATA_Y = UI_X, UI_Y
 PARTY_DATA_WIDTH, PARTY_DATA_HEIGHT = 300, WIN_HEIGHT - UI_Y
 ACTION_OPTIONS_WIDTH, ACTION_OPTIONS_HEIGHT = 110, PARTY_DATA_HEIGHT
 MISC_DATA_WIDTH, MISC_DATA_HEIGHT = WIN_WIDTH - PARTY_DATA_WIDTH - ACTION_OPTIONS_WIDTH, PARTY_DATA_HEIGHT
+MENU_SPACING_WIDTH, MENU_SPACING_HEIGHT = 110, 40
 
 class BattleScreen(GameScreen):
 	""" MainGameScreen( ControlManager, Player ) -> MainGameScreen
@@ -37,6 +40,7 @@ class BattleScreen(GameScreen):
 		self.action_index = 0
 		self.target_index = 0
 		self.item_select_index = 0
+		self.spell_index_x, self.spell_index_y = 0, 0
 		self.pending_action = None
 		self.turn_manager = TurnManager(self)
 		self.misc_message = None
@@ -120,9 +124,30 @@ class BattleScreen(GameScreen):
 				hp_text = "DEAD"
 				hp_image = self.ui_font.render(hp_text, True, DARK_RED)
 			data_pane.blit(hp_image, (110, y_offset))
-			
 
 			mp_text = "MP: " + str(p.mana[0]) + "/" + str(p.mana[1])
+			mp_image = self.ui_font.render(mp_text, True, BLUE)
+			data_pane.blit(mp_image, (220, y_offset))
+
+			y_offset += 40
+
+		for i in xrange(len(self.player.summons)):
+			s = self.player.summons[i]
+			name_color = WHITE
+			if not self.mode == EXECUTE_ACTIONS and i + len(self.player.party) == self.party_turn_index: name_color = ORANGE
+			name = s.name
+			name_image = self.ui_font.render(name, True, name_color)
+			data_pane.blit(name_image, (8, y_offset))
+
+			if p.hitpoints[0] > 0:
+				hp_text = "HP: " + str(s.hitpoints[0]) + "/" + str(s.hitpoints[1])
+				hp_image = self.ui_font.render(hp_text, True, ORANGE)
+			else:
+				hp_text = "DEAD"
+				hp_image = self.ui_font.render(hp_text, True, DARK_RED)
+			data_pane.blit(hp_image, (110, y_offset))
+
+			mp_text = "MP: " + str(s.mana[0]) + "/" + str(s.mana[1])
 			mp_image = self.ui_font.render(mp_text, True, BLUE)
 			data_pane.blit(mp_image, (220, y_offset))
 
@@ -133,7 +158,7 @@ class BattleScreen(GameScreen):
 	def draw_action_options(self, pane):
 		data_pane = Surface((ACTION_OPTIONS_WIDTH, ACTION_OPTIONS_HEIGHT))
 		for i in xrange(len(ACTION_OPTION_LIST)):
-			text = ACTION_OPTION_LIST[i]
+			text = ACTION_OPTION_LIST[i].capitalize()
 			text_image = self.ui_font.render(text, True, WHITE)
 			data_pane.blit(text_image, (28, 8 + 40*i))
 		pygame.draw.lines(data_pane, WHITE, True, [(0, 0), (ACTION_OPTIONS_WIDTH - 2, 0), (ACTION_OPTIONS_WIDTH - 2, ACTION_OPTIONS_HEIGHT - 2), (0, ACTION_OPTIONS_HEIGHT - 2)], 2)
@@ -154,6 +179,17 @@ class BattleScreen(GameScreen):
 		text_image = self.ui_font.render(text, True, WHITE)
 		pane.blit(text_image, (8, 8))
 
+	def misc_draw_select_spell(self, pane):
+		spells = self.active_party_member().spells
+		for i in xrange(len(spells)):
+			s = spells[i]
+			x, y = i%3, i/3
+			spell_name_image = self.ui_font.render(s.name(), True, WHITE)
+			spell_cost_image = self.ui_font.render(str(s.mp_cost()), True, BLUE)
+			pane.blit(spell_name_image, (28 + x*MENU_SPACING_WIDTH, 8 + y*MENU_SPACING_HEIGHT))
+			pane.blit(spell_cost_image, (32 + x*MENU_SPACING_WIDTH + spell_name_image.get_width(), 8 + y*MENU_SPACING_HEIGHT))
+		self.draw_spell_pointer(pane)
+
 	def misc_draw_message(self, pane):
 		text_image = self.ui_font.render(self.misc_message, True, WHITE)
 		pane.blit(text_image, (8, 8))	
@@ -167,15 +203,22 @@ class BattleScreen(GameScreen):
 		self.draw_item_pointer(pane)
 
 	def draw_action_pointer(self, pane):
-		pointer = Surface((16, 16))
-		if self.mode == SELECT_ACTION: pygame.draw.polygon(pointer, WHITE, [(0, 0), (16, 8), (0, 16)])
-		else: pygame.draw.polygon(pointer, WHITE, [(0, 0), (16, 8), (0, 16)], 2)
+		pointer = self.right_pointer(WHITE, self.mode == SELECT_ACTION)
 		pane.blit(pointer, (4, 8 + 40*self.action_index))
 
 	def draw_item_pointer(self, pane):
-		pointer = Surface((16, 16))
-		pygame.draw.polygon(pointer, WHITE, [(0, 0), (16, 8), (0, 16)])
+		pointer = self.right_pointer()
 		pane.blit(pointer, (4, 8 + 40*self.item_select_index))
+
+	def draw_spell_pointer(self, pane):
+		pointer = self.right_pointer()
+		pane.blit(pointer, (4 + MENU_SPACING_WIDTH*self.spell_index_x, 8 + MENU_SPACING_HEIGHT*self.spell_index_y))
+
+	def right_pointer(self, color = WHITE, filled = True):
+		pointer = Surface((16, 16))
+		if filled: pygame.draw.polygon(pointer, color, [(0, 0), (16, 8), (0, 16)])
+		else: pygame.draw.polygon(pointer, WHITE, [(0, 0), (16, 8), (0, 16)], 2)
+		return pointer
 
 	def pause_update(self):
 		""" mgs.pause_update( ) -> None
@@ -200,34 +243,70 @@ class BattleScreen(GameScreen):
 	def confirm_current_action(self):
 		self.player.enqueue_action(self.party_turn_index, self.pending_action, self.monsters.monsters[self.target_index])
 		self.party_turn_index += 1
-		while self.party_turn_index < self.player.party_member_count() and self.player.party[self.party_turn_index].hitpoints[0] <= 0: 
+		while self.party_turn_index < self.party_member_count() and self.active_party_member().hitpoints[0] <= 0: 
 			self.party_turn_index += 1
-		if self.party_turn_index >= self.player.party_member_count(): 
+		if self.party_turn_index >= self.party_member_count(): 
 			self.begin_executing()
 		else:
 			self.mode = SELECT_ACTION
 
+	def select_current_spell(self):
+		index = self.spell_index_y*3 + self.spell_index_x
+		spell = self.active_party_member().spells[int(index)]
+		if spell.mp_cost() > self.active_party_member().mana[0]: return
+		self.active_party_member().pending_spell = spell
+		spell_type, targeting = spell.spell_type(), spell.targeting()
+		if spell_type == ATTACK and targeting == SINGLE:	#TODO: many other cases, such as healing party members
+			self.mode = SELECT_TARGET
+		else:
+			self.confirm_current_action()
+
 	def begin_executing(self):
 		self.mode = EXECUTE_ACTIONS
-		self.turn_manager.set_up_queue(self.monsters.monsters, self.active_party)
+		self.turn_manager.set_up_queue(self.monsters.monsters, self.active_party, self.player.summons)
 		self.turn_manager.select_actor(0)
 
 	def reset_party_turn_index(self):
 		self.party_turn_index = 0
-		while self.party_turn_index < self.player.party_member_count() and self.player.party[self.party_turn_index].hitpoints[0] <= 0: 
+		while self.party_turn_index < self.party_member_count() and self.active_party_member().hitpoints[0] <= 0: 
 			self.party_turn_index += 1
 
 	def select_attack(self):
 		self.mode = SELECT_TARGET
 
+	def select_spells(self):
+		if self.active_party_member().has_spells(): 
+			self.spell_index_x, self.spell_index_y = 0, 0
+			self.mode = SELECT_SPELL
+
 	def select_item(self):
 		self.mode = SELECT_ITEM
+
+	def party_member_count(self):
+		return self.player.party_member_count() + self.player.summon_count()
+
+	def active_party_member(self):	# TODO: allow summons
+		count = self.player.party_member_count()
+		if self.party_turn_index >= count: return self.player.summons[self.party_turn_index - count]
+		return self.player.party[self.party_turn_index]
 
 	def target_count(self):
 		return len(self.monsters.monsters)
 
 	def item_count(self):
 		return self.player.inventory.item_count()
+
+	def current_spell_cols(self):
+		spell_count = self.active_party_member().spell_count()
+		if self.spell_index_y == spell_count/3: return spell_count%3
+		return 3
+
+	def current_spell_rows(self):
+		spell_count = self.active_party_member().spell_count()
+		end_cols = spell_count%3
+		rows = math.ceil(spell_count/3.0)
+		if end_cols != 0 and end_cols <= self.spell_index_x: rows -= 1				
+		return rows
 
 	def exit_battle(self):
 		#TODO: calculate experience, gold, item drops, etc. here
@@ -243,9 +322,10 @@ class TurnManager:
 		self.actor_counter = 0
 		self.time_counter = 0
 
-	def set_up_queue(self, monsters, party):
+	def set_up_queue(self, monsters, party, summons):
 		for m in monsters: self.turn_queue.append((m.speed, m))
 		for p in party:	self.turn_queue.append((p.speed, p))
+		for s in summons: self.turn_queue.append((s.speed, s))
 		self.turn_queue = sorted(self.turn_queue)
 		self.turn_queue.reverse()
 
@@ -309,21 +389,26 @@ class TurnManager:
 		for p in self.turn_queue:
 			if p[1] == party_member:
 				self.turn_queue.remove(p)
-				return
+				return				
 
-ATTACK = "Attack"
-SPELLS = "Spells"
-ITEMS = "Items"
-RUN = "Run"
+# spell constants
+SINGLE = "single"
+
+ATTACK = "attack"
+SPELLS = "spells"
+ITEMS = "items"
+RUN = "run"
 
 ACTION_OPTION_LIST = [ATTACK, SPELLS, ITEMS, RUN]
 ACTION_OPTION_MAP = {
 	ATTACK:BattleScreen.select_attack,
+	SPELLS:BattleScreen.select_spells,
 	ITEMS:BattleScreen.select_item
 }
 
 MISC_DRAW_MAP = {
 	SELECT_TARGET:BattleScreen.misc_draw_select_target,
+	SELECT_SPELL:BattleScreen.misc_draw_select_spell,
 	EXECUTE_ACTIONS:BattleScreen.misc_draw_message,
 	SELECT_ITEM:BattleScreen.misc_draw_select_item
 }
