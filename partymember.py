@@ -1,5 +1,5 @@
 from battlescreen import ATTACK, SPELLS, ITEMS, RUN
-#from spell import Spell, SPELL_DATA_MAP
+from equipmentset import EquipmentSet
 import random
 
 class PartyMember:
@@ -9,6 +9,7 @@ class PartyMember:
 		if not party_map or not key in party_map: return
 		data_map = party_map[key]
 		self.name = data_map[NAME]
+		self.player_class = data_map[PARTY_CLASS]
 		hitpoints = data_map[HITPOINTS]
 		self.hitpoints = [hitpoints, hitpoints]	#TEMP
 		mana = data_map[MANA]
@@ -18,6 +19,7 @@ class PartyMember:
 		for key in spells: self.spells.append(spell_factory.generate_spell(key)) #Spell(key))
 		self.attack_stat = data_map[DAMAGE]
 		self.speed = data_map[SPEED]
+		self.equipment_set = EquipmentSet
 		self.pending_action = None
 		self.pending_target = None
 		self.pending_spell = None
@@ -64,6 +66,7 @@ ACTION_MAP = {
 
 #attributes
 NAME = "name"
+PARTY_CLASS = "party_class"
 HITPOINTS = "hitpoints"
 MANA = "mana"
 DAMAGE = "damage"

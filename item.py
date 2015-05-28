@@ -1,3 +1,4 @@
 class Item:
 	def __init__(self):
-		self.name = "Potion"
+		pass
+		#self.name = "Potion"

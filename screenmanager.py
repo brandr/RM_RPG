@@ -3,6 +3,8 @@ from battlecontrols import BattleControls
 from battlescreen import BattleScreen
 from worldcontrols import WorldControls
 from worldscreen import WorldScreen
+from pausecontrols import PauseControls
+from pausescreen import PauseScreen
 
 class ScreenManager:
 	""" ScreenManager ( Surface, GameScreen, Player ) -> ScreenManager
@@ -73,4 +75,9 @@ class ScreenManager:
 		world_screen = WorldScreen(control_manager, player)
 		self.set_current_screen(world_screen)
 		player.world.initialize_screen(self, world_screen)
-		#print player.rect
+	
+	def switch_to_pause_screen(self, player):
+		controls = PauseControls(player)
+		control_manager = ControlManager(controls)
+		pause_screen = PauseScreen(control_manager, player)
+		self.set_current_screen(pause_screen)

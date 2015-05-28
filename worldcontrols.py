@@ -50,7 +50,16 @@ class WorldControls(Controls):
 		"""
 		self.player.button_press_map[RIGHT] = toggle
 
+	def press_enter(self, key, toggle):
+		pass
+
+	def press_escape(self, key, toggle):
+		if toggle: 
+			self.player.deactivate()
+			self.control_manager.screen.pause()
+			self.control_manager.screen.screen_manager.switch_to_pause_screen(self.player)
+
 move_up, move_down, move_left, move_right = WorldControls.move_up, WorldControls.move_down, WorldControls.move_left, WorldControls.move_right
 
-WORLD_CONTROL_MAP = {K_UP:move_up, K_DOWN:move_down, K_LEFT:move_left, K_RIGHT:move_right}
+WORLD_CONTROL_MAP = {K_UP:move_up, K_DOWN:move_down, K_LEFT:move_left, K_RIGHT:move_right, K_RETURN:WorldControls.press_enter, K_ESCAPE:WorldControls.press_escape}
 DIRECTION_MAP = {K_UP:(0, -1), K_DOWN:(0, 1), K_LEFT:(-1, 0), K_RIGHT:(1, 0)}

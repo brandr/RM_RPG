@@ -110,6 +110,7 @@ DEFAULT_BUTTON_PRESS_MAP = {UP:False, DOWN:False, LEFT:False, RIGHT:False}
 
 #attributes
 NAME = "name"
+PARTY_CLASS = "party_class"
 HITPOINTS = "hitpoints"
 MANA = "mana"
 DAMAGE = "damage"
@@ -119,9 +120,13 @@ SPELLS = "spells"
 #party members
 BERNARD = "bernard"
 
+#party classes
+WIZARD = "wizard"
+
 PARTY_MEMBER_MAP = {
 	BERNARD:{
 		NAME:"Bernard",
+		PARTY_CLASS:WIZARD,
 		HITPOINTS:20,
 		MANA:10,
 		DAMAGE:1,

@@ -2,6 +2,8 @@
 """
 
 from gamescreen import *
+#PAUSE_PANE_WIDTH, PAUSE_PANE_HEIGHT = WIN_WIDTH/
+#PAUSE_PANE_X, PAUSE_PANE_Y = 
 
 class WorldScreen(GameScreen):
 	""" MainGameScreen( ControlManager, Player ) -> MainGameScreen
@@ -25,13 +27,19 @@ class WorldScreen(GameScreen):
 		"""
 		self.draw_bg()
 		self.level_update()
+		#if not self.paused: self.level_update()
+		#else: self.pause_update()
 
 	def pause_update(self):
 		""" mgs.pause_update( ) -> None
 
 		Update the game in its paused state.
 		"""
-		pass #TODO?
+		pass
+		#self.draw_pause_pane(self.screen_image)
+
+	#def draw_pause_pane(self, screen):
+	#	pause_pane = Surface(())
 
 	def level_update(self):
 		""" mgs.level_update( ) -> None
@@ -40,7 +48,7 @@ class WorldScreen(GameScreen):
 		"""
 		self.player.world.update(False, False, False, False)
 
-	def pause_game(self):
+	def pause(self):
 		""" mgs.pause_game( ) -> None
 
 		Pause the game.

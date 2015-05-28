@@ -1,5 +1,6 @@
 from controlmanager import *
 from camera import WIN_WIDTH, WIN_HEIGHT
+import pygame
 from pygame import Surface, Color
 
 WHITE = Color("#FFFFFF")
@@ -61,3 +62,7 @@ class GameScreen:
         for y in range(WIN_HEIGHT/32):  #TODO: make sure this process is correct and efficient.
                 for x in range(WIN_WIDTH/32):
                     self.screen_image.blit(self.bg, (x * 32, y * 32))
+
+    def draw_border(self, screen_image):
+        width, height = screen_image.get_width(), screen_image.get_height()
+        pygame.draw.lines(screen_image, WHITE, True, [(0, 0), (width - 2, 0), (width - 2, height - 2), (0, height - 2)], 2)
