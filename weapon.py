@@ -6,5 +6,6 @@ class Weapon(Equipment):
 		Equipment.__init__(self)
 		self.name = "Iron Sword" #TEMP
 		self.equip_slot = RIGHT_HAND
-		self.damage = 2 #TEMP
+		self.attack_value = 2 #TEMP
+		self.armor_value = 0 #TEMP
 		self.compatible_classes = [] # WIZARD, SOLDIER, etc.

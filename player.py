@@ -2,6 +2,7 @@ from gameimage import GameImage
 from tile import TILE_SIZE
 from partymember import PartyMember
 from inventory import Inventory
+from armor import WIZARD
 from gamescreen import LIGHT_BLUE
 from spell import *
 import pygame
@@ -99,6 +100,9 @@ class Player(GameImage):
 	def summon_count(self):
 		return len(self.summons)
 
+	def obtain_item(self, item):
+		self.inventory.add_item(item)
+
 class SpellFactory:
 	def __init__(self):
 		pass
@@ -119,9 +123,6 @@ SPELLS = "spells"
 
 #party members
 BERNARD = "bernard"
-
-#party classes
-WIZARD = "wizard"
 
 PARTY_MEMBER_MAP = {
 	BERNARD:{

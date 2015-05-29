@@ -16,6 +16,14 @@ class Spell:
 	def targeting(self):
 		return SPELL_DATA_MAP[self.key][TARGETING]
 
+	def execute_action(self, screen):
+		if self.targeting() == MULTIPLE and self.spell_type() == ATTACK:
+			target = self.targets[self.target_index]
+			damage = self.roll_damage(target)
+			screen.misc_message = self.name() + " hit " + target.battle_name + " for " + str(damage) + " damage!"
+			target.take_damage(damage)
+			if target.hitpoints[0] > 0: self.target_index += 1
+
 	def cast(self, caster, screen):
 		spell_map = SPELL_DATA_MAP[self.key]
 		if caster.mana[0] < spell_map[MP_COST]:
@@ -29,12 +37,22 @@ class Spell:
 	def roll_damage(self, target):
 		base_attack = SPELL_DATA_MAP[self.key][DAMAGE] #TODO: calculate differently as spells get more complex are added
 		offset = max(1, base_attack/5.0)
-		return max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
+		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
+		damage = max(0, damage - target.armor_value())
+		return damage
 
 	def cast_single_attack(self, caster, screen):
-		damage = self.roll_damage(caster.pending_target)
-		screen.misc_message = caster.name + " cast " + self.name() + " at " + caster.pending_target.name + " for " + str(damage) + " damage!"
-		caster.pending_target.take_damage(damage)
+		target = caster.pending_target
+		damage = self.roll_damage(target)
+		screen.misc_message = caster.name + " cast " + self.name() + " at " + target.name + " for " + str(damage) + " damage!"
+		target.take_damage(damage)
+
+	def cast_multiple_attack(self, caster, screen):
+		targets = screen.monsters.monsters
+		self.targets = targets
+		self.target_index = 0
+		screen.enqueue_spell_set(self, targets)
+		screen.misc_message = caster.name + " cast " + self.name() + "!"
 
 	def cast_summon(self, caster, screen):
 		summon_map = SPELL_DATA_MAP[self.key][SUMMON_DATA]
@@ -96,7 +114,8 @@ IVY_RAIN = "ivy_rain"
 
 CAST_MAP = {
 	ATTACK:{
-		SINGLE:Spell.cast_single_attack
+		SINGLE:Spell.cast_single_attack,
+		MULTIPLE:Spell.cast_multiple_attack
 	},
 	SUMMON:{
 		SINGLE:Spell.cast_summon

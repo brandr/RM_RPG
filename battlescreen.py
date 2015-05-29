@@ -1,10 +1,11 @@
 from gamescreen import GameScreen, WHITE, BLACK, RED, BLUE, ORANGE, DARK_RED
 from camera import WIN_WIDTH, WIN_HEIGHT
 from battlecontrols import SELECT_ACTION, SELECT_TARGET, SELECT_SPELL, SELECT_ITEM, EXECUTE_ACTIONS
-#from spell import SINGLE, ATTACK
+from itemfactory import generate_item
 import pygame
 from pygame import Surface, Color, font
 import math
+import random
 
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -34,6 +35,7 @@ class BattleScreen(GameScreen):
 		self.monsters = monsters
 		self.init_active_party()
 		self.assign_monster_letters()
+		self.generate_item_drops()
 		self.bg = self.generate_bg(tile)
 		self.ui_font = font.Font("./fonts/FreeSansBold.ttf", 16)
 		self.mode = SELECT_ACTION
@@ -42,6 +44,7 @@ class BattleScreen(GameScreen):
 		self.item_select_index = 0
 		self.spell_index_x, self.spell_index_y = 0, 0
 		self.pending_action = None
+		self.spell_queue = []
 		self.turn_manager = TurnManager(self)
 		self.misc_message = None
 		self.victory_flag = False
@@ -63,6 +66,15 @@ class BattleScreen(GameScreen):
 			existing_names.append(name)
 			m.battle_name = name
 			alphabet_index = 0 
+
+	def generate_item_drops(self):
+		self.item_drops = []
+		for m in self.monsters.monsters:
+			item_data = m.item_drop_data
+			for d in item_data:
+				if random.random() < d[1]:
+					item = generate_item(d[0])
+					self.item_drops.append(item)
 
 	def update(self):
 		""" mgs.update( ) -> None
@@ -261,6 +273,13 @@ class BattleScreen(GameScreen):
 		else:
 			self.confirm_current_action()
 
+	def enqueue_spell_set(self, spell, targets):
+		queue = self.turn_manager.turn_queue
+		index = self.turn_manager.actor_counter + 1
+		for t in targets: 
+			self.turn_manager.turn_queue.insert(index, (999999, spell))
+			index += 1
+			
 	def begin_executing(self):
 		self.mode = EXECUTE_ACTIONS
 		self.turn_manager.set_up_queue(self.monsters.monsters, self.active_party, self.player.summons)
@@ -363,10 +382,29 @@ class TurnManager:
 	def victory_check(self):
 		if len(self.screen.monsters.monsters) == 0:
 			self.screen.misc_message = "Victory!"
-			if self.screen.victory_flag: self.screen.exit_battle()
+			if self.screen.victory_flag: 
+				self.victory_update()
+				return True
 			self.screen.victory_flag = True
+			self.item_drop_index = 0
+			#TODO: experience flgas and stuff
 			return True
 		return False
+
+	def victory_update(self):
+		if self.item_drop_check(): return
+		#TODO: update experience, item drops, etc here.
+		self.screen.exit_battle()
+
+	def item_drop_check(self):
+		drops = self.screen.item_drops
+		count = len(drops)
+		if self.item_drop_index >= count: return False
+		item = drops[self.item_drop_index]
+		self.screen.misc_message = "Got " + item.name + "!"
+		self.screen.player.obtain_item(item)
+		self.item_drop_index += 1
+		return True
 
 	def select_actor(self, index = None):
 		if not index: index = self.actor_counter

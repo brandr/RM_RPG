@@ -9,7 +9,8 @@ class PartyMember:
 		if not party_map or not key in party_map: return
 		data_map = party_map[key]
 		self.name = data_map[NAME]
-		self.player_class = data_map[PARTY_CLASS]
+		self.battle_name = self.name
+		self.party_class = data_map[PARTY_CLASS]
 		hitpoints = data_map[HITPOINTS]
 		self.hitpoints = [hitpoints, hitpoints]	#TEMP
 		mana = data_map[MANA]
@@ -19,10 +20,13 @@ class PartyMember:
 		for key in spells: self.spells.append(spell_factory.generate_spell(key)) #Spell(key))
 		self.attack_stat = data_map[DAMAGE]
 		self.speed = data_map[SPEED]
-		self.equipment_set = EquipmentSet
+		self.equipment_set = EquipmentSet()
 		self.pending_action = None
 		self.pending_target = None
 		self.pending_spell = None
+
+	def name(self):
+		return self.battle_name
 
 	def enqueue_action(self, key, target = None):
 		self.pending_action = ACTION_MAP[key]
@@ -34,7 +38,8 @@ class PartyMember:
 	def basic_attack(self, screen):
 		#TODO: check to see if the target is already dead
 		damage = self.roll_damage(self.pending_target)
-		screen.misc_message = self.name + " attacked " + self.pending_target.battle_name + " for " + str(damage) + " damage!"
+		if damage > 0:	screen.misc_message = self.name + " attacked " + self.pending_target.battle_name + " for " + str(damage) + " damage!"
+		else: screen.misc_message = self.name + " attacked " + self.pending_target.battle_name + ", but they were unfazed."
 		self.pending_target.take_damage(damage)
 
 	def cast_spell(self, screen):
@@ -43,10 +48,15 @@ class PartyMember:
 	def roll_damage(self, target):
 		base_attack = self.attack_stat #TODO: calculate differently once weapons are added
 		offset = max(1, base_attack/5.0)
-		return max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
+		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
+		damage = max(0, damage - target.armor_value())
+		return damage
 
 	def take_damage(self, damage):
 		self.hitpoints[0] = max(0, self.hitpoints[0] - damage)
+
+	def armor_value(self):
+		return self.equipment_set.armor_value()
 
 	def lose_mp(self, mp):
 		self.mana[0] = max(0, self.mana[0] - mp)

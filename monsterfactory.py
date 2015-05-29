@@ -1,4 +1,6 @@
 from monster import Monster
+from armor import *
+from weapon import *
 from gameimage import load_image_file
 
 MAX_MONSTERS = 6
@@ -34,6 +36,9 @@ def init_damage(monster, value):
 def init_speed(monster, value):
 	monster.speed = value
 
+def init_item_drops(monster, value):
+	monster.item_drop_data = value
+
 #monster attributes
 IMAGE = "image"
 IMAGE_TRANSPARENCY = "image_transparency"
@@ -41,15 +46,17 @@ NAME = "name"
 HITPOINTS = "hitpoints"
 DAMAGE = "damage"
 SPEED = "speed"
+ITEM_DROPS = "item_drops"
 
-ATTRIBUTE_LIST = [IMAGE, NAME, HITPOINTS, DAMAGE, SPEED]
+ATTRIBUTE_LIST = [IMAGE, NAME, HITPOINTS, DAMAGE, SPEED, ITEM_DROPS]
 
 INIT_METHOD_MAP = {
 	IMAGE:init_image,
 	NAME:init_name,
 	HITPOINTS:init_hitpoints,
 	DAMAGE:init_damage,
-	SPEED:init_speed
+	SPEED:init_speed,
+	ITEM_DROPS:init_item_drops
 }
 
 #monster types
@@ -66,20 +73,23 @@ MASTER_MONSTER_MAP = {
 		IMAGE_TRANSPARENCY:255,
 		NAME:None,
 		HITPOINTS:None,
-		DAMAGE:2,
-		SPEED:1
+		DAMAGE:2, 
+		SPEED:1,
+		ITEM_DROPS:[]
 	},
 	SPARROW:{
 		IMAGE:"sparrow_1.bmp",
 		NAME:"Sparrow",
 		HITPOINTS:12,
 		DAMAGE:2,
-		SPEED:8
+		SPEED:8,
+		ITEM_DROPS:[(LEATHER_BOOTS, .2)]
 	},
 	GRASS_BEING:{
 		IMAGE:"grass_being_1.bmp",
 		NAME:"Grass Being",
-		HITPOINTS:8
+		HITPOINTS:8,
+		ITEM_DROPS:[(GRASS_HEADBAND, .05)]
 	},
 	ALPHA_BEETLE:{
 		IMAGE:"alpha_beetle_1.bmp",
@@ -93,14 +103,16 @@ MASTER_MONSTER_MAP = {
 		NAME:"Spike Badger",
 		HITPOINTS:20,
 		DAMAGE:6,
-		SPEED:4
+		SPEED:4,
+		ITEM_DROPS:[(SPIKED_CLOAK, .1)]
 	},
 	SPROUTLING:{
 		IMAGE:"sproutling_1.bmp",
 		NAME:"Sproutling",
 		HITPOINTS:8,
 		DAMAGE:2,
-		SPEED:4
+		SPEED:4,
+		ITEM_DROPS:[(ENCHANTED_LEAF_HELMET, .05)]
 	}
 }
 

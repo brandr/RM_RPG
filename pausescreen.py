@@ -1,6 +1,7 @@
 from gamescreen import GameScreen, WHITE
 from camera import WIN_WIDTH, WIN_HEIGHT
-from equipmentset import DEFAULT_EQUIPMENT_NAMES
+from equipment import Equipment
+from equipmentset import DEFAULT_EQUIPMENT_NAMES, DEFAULT_EQUIPMENT_KEYS
 import pygame
 from pygame import Surface, font
 
@@ -13,8 +14,11 @@ EQUIPMENT_PARTY_WIDTH, EQUIPMENT_PARTY_HEIGHT = EQUIPMENT_WIDTH, 160
 EQUIPMENT_PARTY_X, EQUIPMENT_PARTY_Y = 0, EQUIPMENT_LABEL_HEIGHT
 EQUIPMENT_SLOT_WIDTH, EQUIPMENT_SLOT_HEIGHT = EQUIPMENT_WIDTH, WIN_HEIGHT - EQUIPMENT_LABEL_HEIGHT - EQUIPMENT_PARTY_HEIGHT
 EQUIPMENT_SLOT_X, EQUIPMENT_SLOT_Y = EQUIPMENT_X, EQUIPMENT_LABEL_HEIGHT + EQUIPMENT_PARTY_HEIGHT
-EQUIPMENT_ITEM_WIDTH, EQUIPMENT_ITEM_HEIGHT = WIN_WIDTH/5, WIN_HEIGHT
-EQUIPMENT_ITEM_X, EQUIPMENT_ITEM_Y = 2*WIN_WIDTH/5, 0
+EQUIPMENT_ITEM_WIDTH, EQUIPMENT_ITEM_HEIGHT = 2*WIN_WIDTH/5, WIN_HEIGHT
+EQUIPMENT_ITEM_X, EQUIPMENT_ITEM_Y = WIN_WIDTH/5, 0
+EQUIPMENT_PAGE_NUMBER_X, EQUIPMENT_PAGE_NUMBER_Y = 9*EQUIPMENT_ITEM_WIDTH/10, 19*EQUIPMENT_ITEM_HEIGHT/20
+
+EQUIPMENT_PAGE_SIZE = 12
 
 class PauseScreen(GameScreen):
 	def __init__(self, control_manager, player):
@@ -23,9 +27,12 @@ class PauseScreen(GameScreen):
 		self.bg = Surface((WIN_WIDTH, WIN_HEIGHT))
 		self.player = player
 		self.ui_font = font.Font("./fonts/FreeSansBold.ttf", 16)
+		self.small_font = font.Font("./fonts/FreeSansBold.ttf", 12)
 		self.main_options_index = 0
 		self.equipment_party_index = 0
 		self.equipment_slot_index = 0
+		self.equipment_item_index = 0
+		self.equipment_page_index = 0
 		self.mode = MAIN
 
 	def update(self):
@@ -109,7 +116,7 @@ class PauseScreen(GameScreen):
 		names = []
 		for e in DEFAULT_EQUIPMENT_NAMES: 
 			names.append(e)
-			#TODO: add the actual equipped item here too
+			#TODO: add the actual equipped items here too
 		for i in xrange(len(names)):
 			n = names[i]
 			text_image = self.ui_font.render(n, True, WHITE)
@@ -121,10 +128,37 @@ class PauseScreen(GameScreen):
 	def draw_equipment_item(self, pane):
 		equip_item_pane = Surface((EQUIPMENT_ITEM_WIDTH, EQUIPMENT_ITEM_HEIGHT))
 		self.draw_border(equip_item_pane)
-		#TODO: show valid items, make scrollable with arrow keys
-		# only show items in the correct slot that the selected player can equip, and which are not already equipped
+		items = []
+		equipment = self.player.inventory.items_of_type(Equipment)
+		current_equipment = self.selected_party_member.equipment_set.equipment
+		
+		for e in equipment:
+			if e.equip_slot != self.selected_equip_slot: continue
+			if self.selected_party_member.party_class not in e.compatible_classes: continue
+			if e.equipped and not e in current_equipment.values(): continue
+			items.append(e)
+		self.current_equip_items = items
+		page_index = self.equipment_item_index/EQUIPMENT_PAGE_SIZE
+		start = page_index*EQUIPMENT_PAGE_SIZE 
+		end =  min(len(items), start + EQUIPMENT_PAGE_SIZE)
+		for i in range(start, end):
+			item = items[i]
+			text = item.name
+			if item.equipped: text += " [E]"
+			text_image = self.ui_font.render(text, True, WHITE)
+			equip_item_pane.blit(text_image, (28, 8 + 40*(i%EQUIPMENT_PAGE_SIZE)))
+		index = self.equipment_item_index%EQUIPMENT_PAGE_SIZE
+		self.draw_pane_pointer(equip_item_pane, index)
+		# TODO: multiple pages of equipment. Navigate w/ left and right arrow keys
+		self.draw_equipment_page_numbers(equip_item_pane)
 		pane.blit(equip_item_pane, (EQUIPMENT_ITEM_X, EQUIPMENT_ITEM_Y))
 
+	def draw_equipment_page_numbers(self, pane):
+		page_1 = self.equipment_item_index/EQUIPMENT_PAGE_SIZE + 1
+		page_2 = len(self.current_equip_items)/EQUIPMENT_PAGE_SIZE + 1
+		text = str(page_1) + "/" + str(page_2)
+		text_image = self.small_font.render(text, True, WHITE)
+		pane.blit(text_image, (EQUIPMENT_PAGE_NUMBER_X, EQUIPMENT_PAGE_NUMBER_Y)) 
 
 	# misc
 	def unpause(self):
@@ -143,11 +177,29 @@ class PauseScreen(GameScreen):
 
 	def main_move_method(self, direction):
 		count = len(PAUSE_SCREEN_MASTER_MAP[self.mode][COMPONENTS])
+		if count == 0: return
 		self.main_options_index = (self.main_options_index + direction[1])%count
 
 	def equipment_slot_move(self, direction):
 		count = len(DEFAULT_EQUIPMENT_NAMES)
+		if count == 0: return
 		self.equipment_slot_index = (self.equipment_slot_index + direction[1])%count
+
+	def equipment_item_move(self, direction):
+		count = len(self.current_equip_items)
+		if count == 0: return
+		self.equipment_item_index = (self.equipment_item_index + direction[1])%count
+		page_count = count/EQUIPMENT_PAGE_SIZE + 1
+		if direction[0] == 0: return
+		if count > EQUIPMENT_PAGE_SIZE:
+			#offset = page_count*EQUIPMENT_PAGE_SIZE - count
+			#EQUIPMENT_PAGE_SIZE*(count/EQUIPMENT_PAGE_SIZE + 1) count - self.equipment_item_index
+			self.equipment_item_index = (self.equipment_item_index + direction[0]*EQUIPMENT_PAGE_SIZE)%(page_count*EQUIPMENT_PAGE_SIZE) #count
+			if self.equipment_item_index > count: self.equipment_item_index = count - 1
+			#if offset < EQUIPMENT_PAGE_SIZE: self.equipment_item_index += offset
+
+		#TODO: change once there are multiple pages. Allow left and right to switch pages
+
 
 	# pressing enter
 	def press_enter(self):
@@ -169,7 +221,11 @@ class PauseScreen(GameScreen):
 		self.mode = EQUIPMENT_SLOT
 
 	def equipment_select_slot(self):
+		self.selected_equip_slot = DEFAULT_EQUIPMENT_KEYS[self.equipment_slot_index]
 		self.mode = EQUIPMENT_ITEM
+
+	def equipment_select_item(self):
+		self.current_equip_items[self.equipment_item_index].toggle_equip(self.selected_party_member)
 
 	# pressing escape
 	def press_escape(self):
@@ -269,6 +325,8 @@ PAUSE_SCREEN_MASTER_MAP = {
 		},
 		DIMENSIONS:(EQUIPMENT_ITEM_WIDTH, EQUIPMENT_ITEM_HEIGHT),
 		COORDINATES:(EQUIPMENT_ITEM_X, EQUIPMENT_ITEM_Y),
+		MOVE_METHOD:PauseScreen.equipment_item_move,
+		ENTER_METHOD:PauseScreen.equipment_select_item,
 		ESCAPE_METHOD:PauseScreen.return_to_equipment_slot_mode,
 		OPEN_PANES:[MAIN, EQUIPMENT, EQUIPMENT_SLOT, EQUIPMENT_ITEM],
 		DRAW_METHOD:PauseScreen.draw_equipment_item
