@@ -2,7 +2,7 @@ from gameimage import GameImage
 from tile import TILE_SIZE
 from partymember import PartyMember
 from inventory import Inventory
-from armor import WIZARD
+from equipment import WIZARD
 from gamescreen import LIGHT_BLUE
 from spell import *
 import pygame
@@ -23,7 +23,6 @@ class Player(GameImage):
 		self.mask = pygame.mask.from_surface(self.image)
 		self.world = world
 		self.button_press_map = DEFAULT_BUTTON_PRESS_MAP
-		#self.party = [PartyMember("Bernard", 20, 8, 3), PartyMember("Daniel", 15, 1, 5), PartyMember("Staniel", 25, 1, 3)] #TEMP
 		spell_factory = SpellFactory()
 		self.party = [PartyMember(BERNARD, PARTY_MEMBER_MAP, spell_factory)]
 		self.summons = []
@@ -119,6 +118,7 @@ HITPOINTS = "hitpoints"
 MANA = "mana"
 DAMAGE = "damage"
 SPEED = "speed"
+MAGIC = "magic"
 SPELLS = "spells"
 
 #party members
@@ -131,7 +131,9 @@ PARTY_MEMBER_MAP = {
 		HITPOINTS:20,
 		MANA:10,
 		DAMAGE:1,
+		DEFENSE:0,
 		SPEED:3,
+		MAGIC:0,
 		SPELLS:[
 			SPARKS, SUMMON_GRASS_GOLEM, IVY_RAIN
 		]

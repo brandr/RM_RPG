@@ -1,6 +1,7 @@
 from monster import Monster
 from armor import *
 from weapon import *
+from equipment import *
 from gameimage import load_image_file
 
 MAX_MONSTERS = 6
@@ -66,6 +67,7 @@ GRASS_BEING = "grass_being"
 ALPHA_BEETLE = "alpha_beetle"
 SPIKE_BADGER = "spike_badger"
 SPROUTLING = "sproutling"
+BONFIRAK = "bonfirak"
 
 MASTER_MONSTER_MAP = {
 	DEFAULT:{
@@ -103,6 +105,7 @@ MASTER_MONSTER_MAP = {
 		NAME:"Spike Badger",
 		HITPOINTS:20,
 		DAMAGE:6,
+		#DEFENSE:2,
 		SPEED:4,
 		ITEM_DROPS:[(SPIKED_CLOAK, .1)]
 	},
@@ -113,6 +116,15 @@ MASTER_MONSTER_MAP = {
 		DAMAGE:2,
 		SPEED:4,
 		ITEM_DROPS:[(ENCHANTED_LEAF_HELMET, .05)]
+	},
+	BONFIRAK:{
+		IMAGE:"bonfirak_1.bmp",
+		NAME:"Bonfirak",
+		HITPOINTS:25,
+		DAMAGE:5,
+		#DEFENSE:1,
+		SPEED:1,
+		ITEM_DROPS:[(SHARP_CHARCOAL, .1), (CHARRED_STAFF, .05)]
 	}
 }
 

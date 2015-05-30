@@ -17,9 +17,11 @@ class PartyMember:
 		self.mana = [mana, mana]
 		spells = data_map[SPELLS]
 		self.spells = []
-		for key in spells: self.spells.append(spell_factory.generate_spell(key)) #Spell(key))
+		for key in spells: self.spells.append(spell_factory.generate_spell(key))
 		self.attack_stat = data_map[DAMAGE]
+		self.defense = data_map[DEFENSE]
 		self.speed = data_map[SPEED]
+		self.magic = data_map[MAGIC]
 		self.equipment_set = EquipmentSet()
 		self.pending_action = None
 		self.pending_target = None
@@ -46,11 +48,16 @@ class PartyMember:
 		self.pending_spell.cast(self, screen)
 
 	def roll_damage(self, target):
-		base_attack = self.attack_stat #TODO: calculate differently once weapons are added
+		base_attack = self.attack_stat + self.weapon_damage()
 		offset = max(1, base_attack/5.0)
 		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
 		damage = max(0, damage - target.armor_value())
 		return damage
+
+	def weapon_damage(self):
+		weapon = self.equipment_set.weapon()
+		if weapon: return weapon.attack_value
+		return 0
 
 	def take_damage(self, damage):
 		self.hitpoints[0] = max(0, self.hitpoints[0] - damage)
@@ -80,5 +87,7 @@ PARTY_CLASS = "party_class"
 HITPOINTS = "hitpoints"
 MANA = "mana"
 DAMAGE = "damage"
+DEFENSE = "defense"
 SPEED = "speed"
+MAGIC = "magic"
 SPELLS = "spells"

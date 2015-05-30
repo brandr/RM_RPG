@@ -1,5 +1,4 @@
-from equipment import Equipment
-from equipmentset import RIGHT_HAND, LEFT_HAND, HEAD, TORSO, CLOAK, LEGS, FEET, RING_RIGHT, RING_LEFT
+from equipment import *
 
 class Armor(Equipment):
 	def __init__(self, key): #TODO: figure out init
@@ -26,90 +25,30 @@ class Armor(Equipment):
 	def init_armor_value(self, value):
 		self.armor_value = value
 
-# ATTRIBUTES
-NAME = "name"
-EQUIP_SLOT = "equip_slot"
-COMPATIBLE_CLASSES = "compatible_classes"
-ARMOR_VALUE = "armor_value"
+	def init_attack_value(self, value):
+		self.attack_value = value
 
-ARMOR_ATTRIBUTES = [NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE]
+	def init_speed_value(self, value):
+		self.speed_value = value
+
+	def init_max_hp_value(self, value):
+		self.max_hp_value = value
+
+	def init_max_mana_value(self, value):
+		self.max_mana_value = value
+
+	def init_magic_value(self, value):
+		self.magic_value = value
+
+ARMOR_ATTRIBUTES = [ NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE, ATTACK_VALUE, SPEED_VALUE, MAGIC_VALUE, MAX_HP_VALUE, MAX_MANA_VALUE ]
 INIT_METHODS = {
 	NAME:Armor.init_name,
 	EQUIP_SLOT:Armor.init_equip_slot,
 	COMPATIBLE_CLASSES:Armor.init_compatible_classes,
-	ARMOR_VALUE:Armor.init_armor_value
-}
-
-#party classes
-WIZARD = "wizard"
-PALADIN = "paladin"
-NECROMANCER = "necromancer"
-WARRIOR = "warrior"
-KNIGHT = "knight"
-BEASTMASTER = "beastmaster"
-RANGER = "ranger"
-DRUID = "druid"
-ROGUE = "rogue"
-
-DEFAULT = "default"
-#RIGHT HAND
-#LEFT HAND
-#HEAD
-GRASS_HEADBAND = "grass_headband"
-ENCHANTED_LEAF_HELMET = "enchanted_leaf_helmet"
-#TORSO
-#CLOAK
-LEATHER_CLOAK = "leather_cloak"
-SPIKED_CLOAK = "spiked_cloak"	
-#LEGS
-#FEET
-LEATHER_BOOTS = "leather_boots"
-#RING RIGHT
-#RING LEFT
-
-ARMOR_DATA_MAP = {
-	DEFAULT:{
-		NAME:None,
-		EQUIP_SLOT:None,
-		COMPATIBLE_CLASSES:[WIZARD, PALADIN, NECROMANCER, WARRIOR, KNIGHT, BEASTMASTER, RANGER, DRUID, ROGUE],
-		ARMOR_VALUE:0
-	},
-	#RIGHT HAND
-	#LEFT HAND
-	#HEAD
-	GRASS_HEADBAND:{
-		NAME:"Grass Headband",
-		EQUIP_SLOT:HEAD,
-		COMPATIBLE_CLASSES:[ROGUE, WIZARD, WARRIOR, RANGER, BEASTMASTER],
-		ARMOR_VALUE:0
-	},
-	ENCHANTED_LEAF_HELMET:{
-		NAME:"Enchanted Leaf Helmet",
-		EQUIP_SLOT:HEAD,
-		COMPATIBLE_CLASSES:[RANGER, BEASTMASTER, WARRIOR],
-		ARMOR_VALUE:2
-	},
-	#TORSO
-	#CLOAK
-	LEATHER_CLOAK:{
-		NAME:"Leather Cloak",
-		EQUIP_SLOT:CLOAK,
-		COMPATIBLE_CLASSES:[WIZARD, BEASTMASTER, RANGER, ROGUE, WARRIOR],
-		ARMOR_VALUE:1
-	},
-	SPIKED_CLOAK:{
-		NAME:"Spiked Cloak",
-		EQUIP_SLOT:CLOAK,
-		COMPATIBLE_CLASSES:[WIZARD, BEASTMASTER, RANGER, ROGUE],
-		ARMOR_VALUE:3
-	},
-	#LEGS
-	#FEET
-	LEATHER_BOOTS:{
-		NAME:"Leather Boots",
-		EQUIP_SLOT:FEET,
-		ARMOR_VALUE:1
-	}
-	#RING RIGHT
-	#RING LEFT
+	ARMOR_VALUE:Armor.init_armor_value,
+	ATTACK_VALUE:Armor.init_attack_value,
+	SPEED_VALUE:Armor.init_speed_value,
+	MAGIC_VALUE:Armor.init_magic_value,
+	MAX_HP_VALUE:Armor.init_max_hp_value,
+	MAX_MANA_VALUE:Armor.init_max_mana_value
 }

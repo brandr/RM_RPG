@@ -19,12 +19,13 @@ class Spell:
 	def execute_action(self, screen):
 		if self.targeting() == MULTIPLE and self.spell_type() == ATTACK:
 			target = self.targets[self.target_index]
-			damage = self.roll_damage(target)
+			damage = self.roll_damage(self.caster, target)
 			screen.misc_message = self.name() + " hit " + target.battle_name + " for " + str(damage) + " damage!"
 			target.take_damage(damage)
 			if target.hitpoints[0] > 0: self.target_index += 1
 
 	def cast(self, caster, screen):
+		self.caster = caster
 		spell_map = SPELL_DATA_MAP[self.key]
 		if caster.mana[0] < spell_map[MP_COST]:
 			self.spell_fail(caster, screen)
@@ -34,8 +35,8 @@ class Spell:
 		method(self, caster, screen)
 		caster.lose_mp(self.mp_cost())
 
-	def roll_damage(self, target):
-		base_attack = SPELL_DATA_MAP[self.key][DAMAGE] #TODO: calculate differently as spells get more complex are added
+	def roll_damage(self, caster, target):
+		base_attack = SPELL_DATA_MAP[self.key][DAMAGE] + caster.magic #TODO: calculate differently as spells get more complex 
 		offset = max(1, base_attack/5.0)
 		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
 		damage = max(0, damage - target.armor_value())
@@ -43,7 +44,7 @@ class Spell:
 
 	def cast_single_attack(self, caster, screen):
 		target = caster.pending_target
-		damage = self.roll_damage(target)
+		damage = self.roll_damage(caster, target)
 		screen.misc_message = caster.name + " cast " + self.name() + " at " + target.name + " for " + str(damage) + " damage!"
 		target.take_damage(damage)
 
@@ -77,10 +78,19 @@ class Summon(PartyMember):
 		self.spells = []
 		for key in spells: self.spells.append(Spell(key))
 		self.attack_stat = data_map[DAMAGE]
+		self.defense = data_map[DEFENSE]
 		self.speed = data_map[SPEED]
+		self.magic = data_map[MAGIC]
 		self.pending_action = None
 		self.pending_target = None
 		self.pending_spell = None
+
+	def weapon_damage(self):
+		return 0
+
+	def armor_value(self):
+		return 0
+		#return self.defense
 
 # attributes
 NAME = "name"
@@ -103,6 +113,8 @@ SUMMON = "summon"
 HITPOINTS = "hitpoints"
 MANA = "mana"
 SPEED = "speed"
+MAGIC = "magic"
+DEFENSE = "defense"
 SPELLS = "spells"
 
 # spells
@@ -147,6 +159,8 @@ SPELL_DATA_MAP = {
 			HITPOINTS:15,
 			MANA:2,
 			DAMAGE:3,
+			MAGIC:0,
+			DEFENSE:0,
 			SPEED:1,
 			SPELLS:[
 				GRASS_ENTANGLEMENT

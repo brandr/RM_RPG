@@ -62,6 +62,7 @@ BASE_ENCOUNTER_RATE = "base_encounter_rate"
 DEFAULT = "default"
 MEADOW_GRASS = "meadow_grass"
 FOREST_GRASS = "forest_grass"
+CHARRED_GRASS = "charred_grass"
 
 TILE_DATA_MAP = {
 	DEFAULT:{
@@ -79,5 +80,11 @@ TILE_DATA_MAP = {
 		BACKGROUND_COLOR:Color("#007700"),
 		ENCOUNTER_DATA:[(.3, SPARROW), (.2, SPIKE_BADGER), (.5, SPROUTLING)],
 		BASE_ENCOUNTER_RATE: 1.1
+	},
+	CHARRED_GRASS:{
+		IMAGE_FILENAME:"charred_grass_1.bmp",
+		BACKGROUND_COLOR:Color("#777777"),
+		ENCOUNTER_DATA:[(1, BONFIRAK)],
+		BASE_ENCOUNTER_RATE:.9
 	}
 }
