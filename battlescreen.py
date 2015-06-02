@@ -28,7 +28,7 @@ class BattleScreen(GameScreen):
 
 	player: The player affected by this screen.
 	"""
-	def __init__(self, control_manager, player, monsters, tile):
+	def __init__(self, control_manager, player, monsters, tile, battle_data = None):
 		GameScreen.__init__(self, control_manager)
 		self.width, self.height = WIN_WIDTH, WIN_HEIGHT
 		self.player = player
@@ -48,6 +48,7 @@ class BattleScreen(GameScreen):
 		self.turn_manager = TurnManager(self)
 		self.misc_message = None
 		self.victory_flag = False
+		self.battle_data = battle_data
 
 	def init_active_party(self):
 		self.active_party = []
@@ -59,6 +60,9 @@ class BattleScreen(GameScreen):
 		alphabet_index = 0
 		existing_names = []
 		for m in self.monsters.monsters:
+			if not m.battle_letter_flag:
+				m.battle_name = m.name
+				continue
 			name = m.name + " " + ALPHABET[alphabet_index]
 			while (name in existing_names):
 				alphabet_index += 1
@@ -381,18 +385,18 @@ class TurnManager:
 
 	def victory_check(self):
 		if len(self.screen.monsters.monsters) == 0:
-			self.screen.misc_message = "Victory!"
 			if self.screen.victory_flag: 
 				self.victory_update()
 				return True
+			self.screen.misc_message = "Victory!"
 			self.screen.victory_flag = True
 			self.item_drop_index = 0
-			#TODO: experience flgas and stuff
 			return True
 		return False
 
 	def victory_update(self):
 		if self.item_drop_check(): return
+		if self.post_battle_event_check(): return
 		#TODO: update experience, item drops, etc here.
 		self.screen.exit_battle()
 
@@ -404,6 +408,11 @@ class TurnManager:
 		self.screen.misc_message = "Got " + item.name + "!"
 		self.screen.player.obtain_item(item)
 		self.item_drop_index += 1
+		return True
+
+	def post_battle_event_check(self):
+		if not self.screen.battle_data: return False
+		if not self.screen.battle_data.post_update(self.screen): return False
 		return True
 
 	def select_actor(self, index = None):

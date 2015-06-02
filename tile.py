@@ -25,8 +25,13 @@ class Tile(GameImage):
 		self.entity = entity
 		self.entity.rect = Rect(self.rect.left, self.rect.top, TILE_SIZE, TILE_SIZE)
 		self.entity.mask = pygame.mask.from_surface(entity.image)
+		self.entity.tile = self
 		self.image.blit(self.default_image, (0, 0))
 		self.image.blit(entity.image, (0, 0))
+
+	def clear_entity(self):
+		self.entity = None
+		self.image.blit(self.default_image, (0, 0))
 
 	def roll_monster_party(self):
 		first_monster = self.roll_monster()
@@ -63,6 +68,7 @@ DEFAULT = "default"
 MEADOW_GRASS = "meadow_grass"
 FOREST_GRASS = "forest_grass"
 CHARRED_GRASS = "charred_grass"
+BUG_GRASS = "bug_grass"
 
 TILE_DATA_MAP = {
 	DEFAULT:{
@@ -86,5 +92,11 @@ TILE_DATA_MAP = {
 		BACKGROUND_COLOR:Color("#777777"),
 		ENCOUNTER_DATA:[(1, BONFIRAK)],
 		BASE_ENCOUNTER_RATE:.9
+	},
+	BUG_GRASS:{
+		IMAGE_FILENAME:"bug_grass_1.bmp",
+		BACKGROUND_COLOR:Color("#CFC20E"),
+		ENCOUNTER_DATA:[(.9, ALPHA_BEETLE), (.1, BETA_BEETLE)],
+		BASE_ENCOUNTER_RATE:2.0
 	}
 }

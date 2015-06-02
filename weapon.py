@@ -1,5 +1,5 @@
 from equipment import * #Equipment, DEFAULT, WEAPON_DATA_MAP, NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ATTACK_VALUE, ARMOR_VALUE, MAX_MANA_VALUE
-from equipmentset import RIGHT_HAND
+from equipmentset import RIGHT_HAND, LEFT_HAND
 
 class Weapon(Equipment):
 	def __init__(self, key): #TODO: figure out init
@@ -13,6 +13,14 @@ class Weapon(Equipment):
 		if key in data_map: value = data_map[key]
 		else: value = WEAPON_DATA_MAP[DEFAULT][key]
 		init_method(self, value)
+
+	def equippable_in_slot(self, slot):
+		if slot == LEFT_HAND and self.dual_wield: return True
+		return self.equip_slot == slot
+
+	def equip_tag(self):
+		if self.left_equipped: return " [L]"
+		return " [E]"
 		
 	def init_name(self, value):
 		self.name = value		
@@ -41,7 +49,10 @@ class Weapon(Equipment):
 	def init_max_mana_value(self, value):
 		self.max_mana_value = value
 
-WEAPON_ATTRIBUTES = [ NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE, ATTACK_VALUE, SPEED_VALUE, MAGIC_VALUE, MAX_HP_VALUE, MAX_MANA_VALUE ]
+	def init_dual_wield(self, value):
+		self.dual_wield = value
+
+WEAPON_ATTRIBUTES = [ NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE, ATTACK_VALUE, SPEED_VALUE, MAGIC_VALUE, MAX_HP_VALUE, MAX_MANA_VALUE, DUAL_WIELD ]
 INIT_METHODS = {
 	NAME:Weapon.init_name,
 	EQUIP_SLOT:Weapon.init_equip_slot,
@@ -51,5 +62,6 @@ INIT_METHODS = {
 	SPEED_VALUE:Weapon.init_speed_value,
 	MAGIC_VALUE:Weapon.init_magic_value,
 	MAX_HP_VALUE:Weapon.init_max_hp_value,
-	MAX_MANA_VALUE:Weapon.init_max_mana_value
+	MAX_MANA_VALUE:Weapon.init_max_mana_value,
+	DUAL_WIELD:Weapon.init_dual_wield
 }

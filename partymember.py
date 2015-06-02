@@ -48,19 +48,20 @@ class PartyMember:
 		self.pending_spell.cast(self, screen)
 
 	def roll_damage(self, target):
-		base_attack = self.attack_stat + self.weapon_damage()
+		base_attack = self.attack_stat + self.equipment_damage()
 		offset = max(1, base_attack/5.0)
 		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
 		damage = max(0, damage - target.armor_value())
 		return damage
 
-	def weapon_damage(self):
-		weapon = self.equipment_set.weapon()
-		if weapon: return weapon.attack_value
-		return 0
+	def equipment_damage(self):
+		return self.equipment_set.equipment_damage()
 
 	def take_damage(self, damage):
 		self.hitpoints[0] = max(0, self.hitpoints[0] - damage)
+
+	def restore_mana(self, mana):
+		self.mana[0] = min(self.mana[1], self.mana[0] + mana)
 
 	def armor_value(self):
 		return self.equipment_set.armor_value()

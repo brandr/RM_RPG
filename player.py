@@ -2,7 +2,7 @@ from gameimage import GameImage
 from tile import TILE_SIZE
 from partymember import PartyMember
 from inventory import Inventory
-from equipment import WIZARD
+from equipment import WIZARD, WARRIOR
 from gamescreen import LIGHT_BLUE
 from spell import *
 import pygame
@@ -15,6 +15,8 @@ ENCOUNTER_MEAN, ENCOUNTER_SD = 700, 200
 class Player(GameImage):
 	def __init__(self, world):
 		GameImage.__init__(self)
+		self.party = []
+		self.add_party_member(BERNARD)
 		self.world_image = Surface((16, 16))
 		self.rect = Rect(0, 0, 16, 16)
 		self.world_image.fill(Color("#FF0000"))
@@ -23,8 +25,6 @@ class Player(GameImage):
 		self.mask = pygame.mask.from_surface(self.image)
 		self.world = world
 		self.button_press_map = DEFAULT_BUTTON_PRESS_MAP
-		spell_factory = SpellFactory()
-		self.party = [PartyMember(BERNARD, PARTY_MEMBER_MAP, spell_factory)]
 		self.summons = []
 		self.xvel, self.yvel = 0, 0
 		self.inventory = Inventory()
@@ -48,6 +48,10 @@ class Player(GameImage):
 	def deactivate(self):
 		self.button_press_map[UP], self.button_press_map[DOWN], self.button_press_map[LEFT], self.button_press_map[RIGHT] = False, False, False, False
 
+	def add_party_member(self, key):
+		spell_factory = SpellFactory()
+		self.party.append(PartyMember(key, PARTY_MEMBER_MAP, spell_factory))
+
 	def remove_summons(self):
 		self.summons = []
 
@@ -61,9 +65,9 @@ class Player(GameImage):
 	def reset_encounter_timer(self):
 		self.encounter_timer = random.gauss(ENCOUNTER_MEAN, ENCOUNTER_SD)
 
-	def begin_encounter(self, monsters):
+	def begin_encounter(self, monsters, battle_data = None):
 		self.deactivate()
-		self.world.screen_manager.switch_to_battle_screen(self, monsters, self.current_tile())
+		self.world.screen_manager.switch_to_battle_screen(self, monsters, self.current_tile(), battle_data)
 
 	def refresh_tile_flags(self):
 		self.totem_contact = False
@@ -123,6 +127,7 @@ SPELLS = "spells"
 
 #party members
 BERNARD = "bernard"
+STEVEN = "steven"
 
 PARTY_MEMBER_MAP = {
 	BERNARD:{
@@ -135,7 +140,19 @@ PARTY_MEMBER_MAP = {
 		SPEED:3,
 		MAGIC:0,
 		SPELLS:[
-			SPARKS, SUMMON_GRASS_GOLEM, IVY_RAIN
+			SPARKS, SUMMON_GRASS_GOLEM, IVY_RAIN, SUMMON_WISP
+		]
+	},
+	STEVEN:{
+		NAME:"Steven",
+		PARTY_CLASS:WARRIOR,
+		HITPOINTS:20,
+		MANA:1,
+		DAMAGE:2,
+		DEFENSE:0,
+		SPEED:4,
+		MAGIC:0,
+		SPELLS:[
 		]
 	}
 }

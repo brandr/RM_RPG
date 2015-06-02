@@ -5,6 +5,13 @@ class EquipmentSet:
 	def init_equipment(self):
 		self.equipment = {RIGHT_HAND:None, LEFT_HAND:None, HEAD:None, TORSO:None, CLOAK:None, LEGS:None, FEET:None, RING_RIGHT:None, RING_LEFT:None}
 
+	def equipment_damage(self):
+		value = 0
+		for i in self.equipment:
+			e = self.equipment[i]
+			if e: value += e.attack_value
+		return value
+
 	def armor_value(self):
 		value = 0
 		for i in self.equipment:

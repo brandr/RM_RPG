@@ -133,9 +133,11 @@ class PauseScreen(GameScreen):
 		current_equipment = self.selected_party_member.equipment_set.equipment
 		
 		for e in equipment:
-			if e.equip_slot != self.selected_equip_slot: continue
+			if not e.equippable_in_slot(self.selected_equip_slot): continue
 			if self.selected_party_member.party_class not in e.compatible_classes: continue
 			if e.equipped and not e in current_equipment.values(): continue
+			if self.selected_equip_slot == "left_hand" and e.equipped and e.equip_slot != self.selected_equip_slot and not e.left_equipped: continue
+			if self.selected_equip_slot == "right_hand" and e.equipped and e.left_equipped: continue
 			items.append(e)
 		self.current_equip_items = items
 		page_index = self.equipment_item_index/EQUIPMENT_PAGE_SIZE
@@ -144,7 +146,7 @@ class PauseScreen(GameScreen):
 		for i in range(start, end):
 			item = items[i]
 			text = item.name
-			if item.equipped: text += " [E]"
+			if item.equipped: text += item.equip_tag()
 			text_image = self.ui_font.render(text, True, WHITE)
 			equip_item_pane.blit(text_image, (28, 8 + 40*(i%EQUIPMENT_PAGE_SIZE)))
 		index = self.equipment_item_index%EQUIPMENT_PAGE_SIZE
@@ -179,6 +181,10 @@ class PauseScreen(GameScreen):
 		count = len(PAUSE_SCREEN_MASTER_MAP[self.mode][COMPONENTS])
 		if count == 0: return
 		self.main_options_index = (self.main_options_index + direction[1])%count
+
+	def equipment_move(self, direction):
+		count = len(self.player.party)
+		self.equipment_party_index = (self.equipment_party_index + direction[1])%count
 
 	def equipment_slot_move(self, direction):
 		count = len(DEFAULT_EQUIPMENT_NAMES)
@@ -225,7 +231,9 @@ class PauseScreen(GameScreen):
 		self.mode = EQUIPMENT_ITEM
 
 	def equipment_select_item(self):
-		self.current_equip_items[self.equipment_item_index].toggle_equip(self.selected_party_member)
+		if self.equipment_item_index > len(self.current_equip_items): return
+		left = (self.equipment_slot_index == 1)
+		self.current_equip_items[self.equipment_item_index].toggle_equip(self.selected_party_member, left)
 
 	# pressing escape
 	def press_escape(self):
@@ -299,6 +307,7 @@ PAUSE_SCREEN_MASTER_MAP = {
 		#TODO
 
 		#TODO
+		MOVE_METHOD:PauseScreen.equipment_move,
 		ENTER_METHOD:PauseScreen.equipment_select_party,
 		ESCAPE_METHOD:PauseScreen.return_to_main_mode,
 		OPEN_PANES:[MAIN, EQUIPMENT],

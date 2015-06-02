@@ -63,10 +63,10 @@ class ScreenManager:
 		"""
 		self.current_screen.draw_screen(self.master_screen)
 
-	def switch_to_battle_screen(self, player, monsters, tile):
+	def switch_to_battle_screen(self, player, monsters, tile, battle_data = None):
 		controls = BattleControls(player)
 		control_manager = ControlManager(controls)
-		battle_screen = BattleScreen(control_manager, player, monsters, tile)
+		battle_screen = BattleScreen(control_manager, player, monsters, tile, battle_data)
 		self.set_current_screen(battle_screen)
 
 	def switch_to_world_screen(self, player):

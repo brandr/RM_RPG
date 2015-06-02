@@ -1,6 +1,6 @@
 from camera import Camera, WIN_WIDTH, WIN_HEIGHT
-from tile import Tile, TILE_SIZE, MEADOW_GRASS, FOREST_GRASS, CHARRED_GRASS
-from tileentity import TileEntity, HEALING_TOTEM
+from tile import Tile, TILE_SIZE, MEADOW_GRASS, FOREST_GRASS, CHARRED_GRASS, BUG_GRASS
+from tileentity import TileEntity, HEALING_TOTEM, SVON
 from pygame import Surface
 
 WORLD_WIDTH = 50
@@ -33,10 +33,14 @@ class World:
 		for y in range(WORLD_HEIGHT*3/8, WORLD_HEIGHT*3/8 + WORLD_HEIGHT/4):
 			for x in range(WORLD_WIDTH*3/8, WORLD_WIDTH*3/8 + WORLD_WIDTH/4):
 				self.tiles[y][x] = Tile(x, y, FOREST_GRASS)
+		for y in range(WORLD_HEIGHT*5/8, WORLD_HEIGHT*6/8):
+			for x in range(WORLD_WIDTH*3/8, WORLD_WIDTH*3/8 + WORLD_WIDTH/4):
+				self.tiles[y][x] = Tile(x, y, BUG_GRASS)
 		for y in range(0, WORLD_HEIGHT):
 			for x in range(WORLD_WIDTH*7/8, WORLD_WIDTH):
 				self.tiles[y][x] = Tile(x, y, CHARRED_GRASS)
 		self.tiles[WORLD_HEIGHT/2][WORLD_WIDTH/2].set_entity(TileEntity(HEALING_TOTEM))
+		self.tiles[20][WORLD_WIDTH*15/16].set_entity(TileEntity(SVON))
 
 	def update(self, up, down, left, right):
 		player = self.player
@@ -66,8 +70,9 @@ class World:
 		self.screen.blit(self.flash_image, (0, 0))
 		self.flash_counter[0] -= 1
 
-	def add_player(self, player):
+	def add_player(self, player, x, y):
 		self.player = player
+		player.rect.left, player.rect.top = x*TILE_SIZE, y*TILE_SIZE
 
 	def add_tile(self, tile, x, y):
 		self.tiles[y][x] = tile

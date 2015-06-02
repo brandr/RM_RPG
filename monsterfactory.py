@@ -27,6 +27,7 @@ def init_image(monster, value):
 
 def init_name(monster, value):
 	monster.name = value
+	#monster.default_name = value
 
 def init_hitpoints(monster, value):
 	monster.hitpoints = [value, value]
@@ -40,6 +41,9 @@ def init_speed(monster, value):
 def init_item_drops(monster, value):
 	monster.item_drop_data = value
 
+def init_battle_letter_flag(monster, value):
+	monster.battle_letter_flag = value
+
 #monster attributes
 IMAGE = "image"
 IMAGE_TRANSPARENCY = "image_transparency"
@@ -48,8 +52,9 @@ HITPOINTS = "hitpoints"
 DAMAGE = "damage"
 SPEED = "speed"
 ITEM_DROPS = "item_drops"
+BATTLE_LETTER_FLAG = "battle_letter_flag"
 
-ATTRIBUTE_LIST = [IMAGE, NAME, HITPOINTS, DAMAGE, SPEED, ITEM_DROPS]
+ATTRIBUTE_LIST = [IMAGE, NAME, HITPOINTS, DAMAGE, SPEED, ITEM_DROPS, BATTLE_LETTER_FLAG]
 
 INIT_METHOD_MAP = {
 	IMAGE:init_image,
@@ -57,7 +62,8 @@ INIT_METHOD_MAP = {
 	HITPOINTS:init_hitpoints,
 	DAMAGE:init_damage,
 	SPEED:init_speed,
-	ITEM_DROPS:init_item_drops
+	ITEM_DROPS:init_item_drops,
+	BATTLE_LETTER_FLAG:init_battle_letter_flag
 }
 
 #monster types
@@ -65,9 +71,13 @@ DEFAULT = "default"
 SPARROW = "sparrow"
 GRASS_BEING = "grass_being"
 ALPHA_BEETLE = "alpha_beetle"
+BETA_BEETLE = "beta_beetle"
 SPIKE_BADGER = "spike_badger"
 SPROUTLING = "sproutling"
 BONFIRAK = "bonfirak"
+
+#bosses
+SVON = "svon"
 
 MASTER_MONSTER_MAP = {
 	DEFAULT:{
@@ -77,7 +87,8 @@ MASTER_MONSTER_MAP = {
 		HITPOINTS:None,
 		DAMAGE:2, 
 		SPEED:1,
-		ITEM_DROPS:[]
+		ITEM_DROPS:[],
+		BATTLE_LETTER_FLAG:True
 	},
 	SPARROW:{
 		IMAGE:"sparrow_1.bmp",
@@ -85,7 +96,7 @@ MASTER_MONSTER_MAP = {
 		HITPOINTS:12,
 		DAMAGE:2,
 		SPEED:8,
-		ITEM_DROPS:[(LEATHER_BOOTS, .2)]
+		ITEM_DROPS:[(LEATHER_BOOTS, .2), (LEATHER_VEST, .1)]
 	},
 	GRASS_BEING:{
 		IMAGE:"grass_being_1.bmp",
@@ -100,6 +111,13 @@ MASTER_MONSTER_MAP = {
 		DAMAGE:5,
 		SPEED:2
 	},
+	BETA_BEETLE:{
+		IMAGE:"beta_beetle_1.bmp",
+		NAME:"Beta Beetle",
+		HITPOINTS:10,
+		DAMAGE:10,
+		SPEED:2
+	},
 	SPIKE_BADGER:{
 		IMAGE:"spike_badger_1.bmp",
 		NAME:"Spike Badger",
@@ -107,7 +125,7 @@ MASTER_MONSTER_MAP = {
 		DAMAGE:6,
 		#DEFENSE:2,
 		SPEED:4,
-		ITEM_DROPS:[(SPIKED_CLOAK, .1)]
+		ITEM_DROPS:[(SPIKED_CLOAK, .1), (SPIKED_STAFF, .05), (BLADE_BOW, .05), (BADGERSPIKE_DAGGER, .1)]
 	},
 	SPROUTLING:{
 		IMAGE:"sproutling_1.bmp",
@@ -115,7 +133,7 @@ MASTER_MONSTER_MAP = {
 		HITPOINTS:8,
 		DAMAGE:2,
 		SPEED:4,
-		ITEM_DROPS:[(ENCHANTED_LEAF_HELMET, .05)]
+		ITEM_DROPS:[(ENCHANTED_LEAF_HELMET, .05), (BRANCH_SHIELD, .1)]
 	},
 	BONFIRAK:{
 		IMAGE:"bonfirak_1.bmp",
@@ -125,6 +143,17 @@ MASTER_MONSTER_MAP = {
 		#DEFENSE:1,
 		SPEED:1,
 		ITEM_DROPS:[(SHARP_CHARCOAL, .1), (CHARRED_STAFF, .05)]
+	},
+
+	#BOSSES
+	SVON:{
+		IMAGE:"svon_1.bmp",
+		NAME:"Svon the Charred Golem",
+		HITPOINTS:50,
+		DAMAGE:3,
+		SPEED:0,
+		ITEM_DROPS:[(CHARRED_STAFF, .2), (CHARRED_SHORT_SWORD, .8)],
+		BATTLE_LETTER_FLAG:False
 	}
 }
 

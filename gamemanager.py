@@ -36,7 +36,7 @@ class GameManager:
 		#TEMP
 		world = World()
 		player = Player(world)
-		world.add_player(player)
+		world.add_player(player, 35, 20)
 		#TEMP
 
 		game_controls = WorldControls(player) # TODO: specify what kind of controls should be used at the start of the game and use a different constructor.

@@ -1,11 +1,10 @@
 from armor import Armor
 from weapon import Weapon
-#from item import Item
 
 
 class Inventory:
 	def __init__(self):
-		self.items = [Weapon("shepherds_stick")] #TEMP
+		self.items = [Weapon("shepherds_stick")] 
 
 	def item_count(self):
 		return len(self.items)

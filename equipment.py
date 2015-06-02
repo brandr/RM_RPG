@@ -6,19 +6,26 @@ class Equipment(Item):	# abstract class for weapons and armor to inherit from
 		Item.__init__(self)
 		self.compatible_classes = [] # WIZARD, SOLDIER, etc.
 		self.equipped = False
+		self.left_equipped = False
 
-	def toggle_equip(self, target):
+	def toggle_equip(self, target, left = False):
 		if self.equipped: self.unequip(target)
-		else: self.equip(target)
+		else: self.equip(target, left)
 
-	def equip(self, target):
+	def equip(self, target, left = False):
 		self.equipped = True
-		target.equipment_set.unequip_item_in_slot(self.equip_slot)
-		target.equipment_set.equipment[self.equip_slot] = self
+		self.left_equipped = left
+		equip_slot = self.equip_slot
+		if left: equip_slot = LEFT_HAND
+		target.equipment_set.unequip_item_in_slot(equip_slot)
+		target.equipment_set.equipment[equip_slot] = self
 		self.apply_equip_effects(target)
 
 	def unequip(self, target):
+		#left = self.equip_slot == LEFT_HAND
 		self.equipped = False
+		self.left_unequipped = False
+		#if left: target.equipment_set.equipment[LEFT_HAND] = None
 		target.equipment_set.equipment[self.equip_slot] = None
 		self.apply_equip_effects(target, True)
 
@@ -27,8 +34,16 @@ class Equipment(Item):	# abstract class for weapons and armor to inherit from
 		if remove: sign = -1
 		target.speed += sign*self.speed_value
 		target.magic += sign*self.magic_value
-		target.mana[1] += sign*self.max_mana_value
-		target.hitpoints[1] += sign*self.max_hp_value
+		target.hitpoints[1] = max(1, target.hitpoints[1] + sign*self.max_hp_value)
+		target.hitpoints[0] = min(target.hitpoints[0], target.hitpoints[1])
+		target.mana[1] = max(1, target.mana[1] + sign*self.max_mana_value)
+		target.mana[0] = min(target.mana[0], target.mana[1])
+		
+	def equippable_in_slot(self, slot):
+		return self.equip_slot == slot
+
+	def equip_tag(self):
+		return " [E]"
 
 # ATTRIBUTES
 NAME = "name"
@@ -40,6 +55,7 @@ SPEED_VALUE = "speed_value"
 MAGIC_VALUE = "magic_value"
 MAX_HP_VALUE = "max_hp_value"
 MAX_MANA_VALUE = "max_mana_value"
+DUAL_WIELD = "dual_wield"
 
 #party classes
 WIZARD = "wizard"
@@ -53,18 +69,25 @@ DRUID = "druid"
 ROGUE = "rogue"
 
 DEFAULT = "default"
-#RIGHT HAND
+#RIGHT HAND (weapon)
 WOODEN_SHORT_SWORD = "wooden_short_sword"
 SHEPHERDS_STICK = "shepherds_stick"
 RUSTY_DAGGER = "rusty_dagger"
 WOODEN_SHORT_BOW = "wooden_short_bow"
 SHARP_CHARCOAL = "sharp_charcoal"
 CHARRED_STAFF = "charred_staff"
+CHARRED_SHORT_SWORD = "charred_short_sword"
+SPIKED_STAFF = "spiked_staff"
+FIRERIDER = "firerider"
+BLADE_BOW = "blade_bow"
+BADGERSPIKE_DAGGER = "badgerspike_dagger"
 #LEFT HAND
+BRANCH_SHIELD = "branch_shield"
 #HEAD
 GRASS_HEADBAND = "grass_headband"
 ENCHANTED_LEAF_HELMET = "enchanted_leaf_helmet"
 #TORSO
+LEATHER_VEST = "leather_vest"
 #CLOAK
 LEATHER_CLOAK = "leather_cloak"
 SPIKED_CLOAK = "spiked_cloak"	
@@ -84,17 +107,18 @@ WEAPON_DATA_MAP = {
 		SPEED_VALUE:0,
 		MAGIC_VALUE:0,
 		MAX_HP_VALUE:0,
-		MAX_MANA_VALUE:0
+		MAX_MANA_VALUE:0,
+		DUAL_WIELD:False
 	},
 	#RIGHT_HAND
 	WOODEN_SHORT_SWORD:{
-		NAME:"Wooden Short Sword",
+		NAME:"Wooden Shortsword",
 		COMPATIBLE_CLASSES:[WARRIOR, KNIGHT, BEASTMASTER, PALADIN],
 		ATTACK_VALUE:2
 	},
 	SHEPHERDS_STICK:{
 		NAME:"Shepherd's Stick",
-		COMPATIBLE_CLASSES:[WIZARD, BEASTMASTER, NECROMANCER],
+		COMPATIBLE_CLASSES:[WIZARD, BEASTMASTER, NECROMANCER, DRUID],
 		ATTACK_VALUE:1,
 		MAX_MANA_VALUE:1
 	},
@@ -104,7 +128,7 @@ WEAPON_DATA_MAP = {
 		ATTACK_VALUE:2
 	},
 	WOODEN_SHORT_BOW:{
-		NAME:"Wooden Short Bow",
+		NAME:"Wooden Shortbow",
 		COMPATIBLE_CLASSES:[RANGER, ROGUE],
 		ATTACK_VALUE:2
 	},
@@ -118,6 +142,40 @@ WEAPON_DATA_MAP = {
 		COMPATIBLE_CLASSES:[WIZARD, NECROMANCER],
 		ATTACK_VALUE:1,
 		MAGIC_VALUE:5
+	},
+	CHARRED_SHORT_SWORD:{
+		NAME:"Charred Shortsword",
+		COMPATIBLE_CLASSES:[WARRIOR],
+		ATTACK_VALUE:6
+	},
+	SPIKED_STAFF:{
+		NAME:"Spiked Staff",
+		COMPATIBLE_CLASSES:[WIZARD, NECROMANCER, DRUID],
+		ATTACK_VALUE:3,
+		MAGIC_VALUE:2
+	},
+	FIRERIDER:{
+		NAME:"Firerider",
+		COMPATIBLE_CLASSES:[RANGER],
+		ATTACK_VALUE:10,
+		MAGIC_VALUE:3,
+		ARMOR_VALUE:1,
+		SPEED_VALUE:1
+	},
+	BLADE_BOW:{
+		NAME:"Blade Bow",
+		COMPATIBLE_CLASSES:[RANGER, WARRIOR, ROGUE, DRUID],
+		ATTACK_VALUE:5,
+		SPEED_VALUE:1,
+		ARMOR_VALUE:1,
+		MAGIC_VALUE:1,
+		MAX_MANA_VALUE:-2
+	},
+	BADGERSPIKE_DAGGER:{
+		NAME:"Badgerspike Dagger",
+		COMPATIBLE_CLASSES:[ROGUE, BEASTMASTER, WARRIOR],
+		ATTACK_VALUE:4,
+		DUAL_WIELD:True
 	}
 }
 
@@ -135,6 +193,12 @@ ARMOR_DATA_MAP = {
 	},
 	#RIGHT HAND
 	#LEFT HAND
+	BRANCH_SHIELD:{
+		NAME:"Branch Shield",
+		EQUIP_SLOT:LEFT_HAND,
+		COMPATIBLE_CLASSES:[WARRIOR, BEASTMASTER, DRUID],
+		ARMOR_VALUE:2
+	},
 	#HEAD
 	GRASS_HEADBAND:{
 		NAME:"Grass Headband",
@@ -146,10 +210,18 @@ ARMOR_DATA_MAP = {
 	ENCHANTED_LEAF_HELMET:{
 		NAME:"Enchanted Leaf Helmet",
 		EQUIP_SLOT:HEAD,
-		COMPATIBLE_CLASSES:[RANGER, BEASTMASTER, WARRIOR],
+		COMPATIBLE_CLASSES:[RANGER, BEASTMASTER, WARRIOR, DRUID],
 		ARMOR_VALUE:2
 	},
 	#TORSO
+	LEATHER_VEST:{
+		NAME:"Leather Vest",
+		EQUIP_SLOT:TORSO,
+		COMPATIBLE_CLASSES:[WARRIOR, KNIGHT, BEASTMASTER],
+		ARMOR_VALUE:2,
+		MAGIC_VALUE:-1,
+		MAX_MANA_VALUE:-1
+	},
 	#CLOAK
 	LEATHER_CLOAK:{
 		NAME:"Leather Cloak",
