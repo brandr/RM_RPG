@@ -231,6 +231,7 @@ class PauseScreen(GameScreen):
 		self.mode = EQUIPMENT_ITEM
 
 	def equipment_select_item(self):
+		if len(self.current_equip_items) == 0: return
 		if self.equipment_item_index > len(self.current_equip_items): return
 		left = (self.equipment_slot_index == 1)
 		self.current_equip_items[self.equipment_item_index].toggle_equip(self.selected_party_member, left)
@@ -249,6 +250,7 @@ class PauseScreen(GameScreen):
 		self.mode = EQUIPMENT
 
 	def return_to_equipment_slot_mode(self):
+		self.equipment_item_index = 0
 		self.mode = EQUIPMENT_SLOT
 
 	# index methods
