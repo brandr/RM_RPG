@@ -35,7 +35,7 @@ class BattleScreen(GameScreen):
 		self.monsters = monsters
 		self.init_active_party()
 		self.assign_monster_letters()
-		self.generate_item_drops()
+		self.generate_rewards()
 		self.bg = self.generate_bg(tile)
 		self.ui_font = font.Font("./fonts/FreeSansBold.ttf", 16)
 		self.mode = SELECT_ACTION
@@ -71,6 +71,10 @@ class BattleScreen(GameScreen):
 			m.battle_name = name
 			alphabet_index = 0 
 
+	def generate_rewards(self):
+		self.generate_item_drops()
+		self.generate_exp_yield()
+
 	def generate_item_drops(self):
 		self.item_drops = []
 		for m in self.monsters.monsters:
@@ -79,6 +83,11 @@ class BattleScreen(GameScreen):
 				if random.random() < d[1]:
 					item = generate_item(d[0])
 					self.item_drops.append(item)
+
+	def generate_exp_yield(self):
+		self.exp_yield = 0
+		for m in self.monsters.monsters:
+			self.exp_yield += m.exp_yield
 
 	def update(self):
 		""" mgs.update( ) -> None
@@ -332,11 +341,10 @@ class BattleScreen(GameScreen):
 		return rows
 
 	def exit_battle(self):
-		#TODO: calculate experience, gold, item drops, etc. here
 		self.player.remove_summons()
 		self.screen_manager.switch_to_world_screen(self.player)
 
-TURN_TICKS = 100
+TURN_TICKS = 150
 
 class TurnManager:
 	def __init__(self, screen):
@@ -345,6 +353,10 @@ class TurnManager:
 		self.current_actor = None
 		self.actor_counter = 0
 		self.time_counter = 0
+		self.exp_yield_flag = True
+		self.level_up_message_flag = True
+		self.level_ups = []
+		self.level_up_index = 0
 
 	def set_up_queue(self, monsters, party, summons):
 		for m in monsters: self.turn_queue.append((m.speed, m))
@@ -395,10 +407,41 @@ class TurnManager:
 		return False
 
 	def victory_update(self):
+		if self.exp_yield_check(): return
+		if self.level_up_check(): return
 		if self.item_drop_check(): return
 		if self.post_battle_event_check(): return
 		#TODO: update experience, item drops, etc here.
 		self.screen.exit_battle()
+
+	def exp_yield_check(self):
+		if self.exp_yield_flag:
+			self.screen.misc_message = "You gained " + str(self.screen.exp_yield) + " experience!"
+			party = self.screen.player.party
+			for p in party:
+				exp = self.screen.exp_yield/len(party)
+				p.experience[0] += exp
+				if p.level_up_check(): self.level_ups.append(p)
+			self.exp_yield_flag = False
+			return True
+		return False
+
+	def level_up_check(self):
+		if self.level_up_index < len(self.level_ups):
+			p = self.level_ups[self.level_up_index]
+			if self.level_up_message_flag:
+				self.screen.misc_message = p.name + " grew to level " + str(p.exp_level) + "!"
+				self.level_up_message_flag = False
+			if p.new_spells_check():
+				if p.new_spells_flag:
+					p.new_spells_update(self.screen)
+					return True
+				else:
+					p. new_spells_flag = True
+					return True
+			else: self.level_up_index += 1
+			return True
+		return False
 
 	def item_drop_check(self):
 		drops = self.screen.item_drops

@@ -36,6 +36,10 @@ class Spell:
 		if self.targeting() == MULTIPLE and self.spell_type() == RESTORE:
 			target = self.targets[self.target_index]
 			restore_type, restore_power = SPELL_DATA_MAP[self.key][RESTORE_TYPE], SPELL_DATA_MAP[self.key][RESTORE_POWER]
+			restore_power += self.caster.magic
+			if restore_type == HITPOINTS:
+				screen.misc_message = target.battle_name + " regained " + str(restore_power) + " health!"
+				target.restore_hitpoints(restore_power)
 			if restore_type == MANA:
 				screen.misc_message = target.battle_name + " regained " + str(restore_power) + " mana!"
 				target.restore_mana(restore_power)
@@ -56,7 +60,7 @@ class Spell:
 		base_attack = SPELL_DATA_MAP[self.key][DAMAGE] + caster.magic #TODO: calculate differently as spells get more complex 
 		offset = max(1, base_attack/5.0)
 		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
-		damage = max(0, damage - target.armor_value())
+		damage = max(0, damage - target.magic_resist_value())
 		return damage
 
 	def cast_single_attack(self, caster, screen):
@@ -161,6 +165,9 @@ GRASS_ENTANGLEMENT = "grass_entanglement"
 IVY_RAIN = "ivy_rain"
 WISP_RESTORE = "wisp_restore"
 MANA_BALL = "mana_ball"
+THUNDERIDE = "thunderide"
+MULTISHOCK = "multishock"
+GENTLE_TOUCH = "gentle_touch"
 
 CAST_MAP = {
 	ATTACK:{
@@ -261,6 +268,34 @@ SPELL_DATA_MAP = {
 		EFFECTS:[
 			(STUN, 3)
 		]
+	},
+	THUNDERIDE:{
+		NAME:"Thunderide",
+		TARGETING:SINGLE,
+		SPELL_TYPE:ATTACK,
+		MP_COST:5,
+		DAMAGE:8,
+		EFFECTS:[
+			(STUN, 1)
+		]
+	},
+	MULTISHOCK:{
+		NAME:"Multishock",
+		TARGETING:MULTIPLE,
+		SPELL_TYPE:ATTACK,
+		MP_COST:10,
+		DAMAGE:2,
+		EFFECTS:[
+			(STUN, 2)
+		]
+	},
+	GENTLE_TOUCH:{
+		NAME:"Gentle Touch",
+		TARGETING:MULTIPLE, #TODO: make it possible to do single restore and change this
+		SPELL_TYPE:RESTORE,
+		RESTORE_TYPE:HITPOINTS,
+		MP_COST:5,
+		RESTORE_POWER:3
 	}
 }
 

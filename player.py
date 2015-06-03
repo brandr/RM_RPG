@@ -2,7 +2,7 @@ from gameimage import GameImage
 from tile import TILE_SIZE
 from partymember import PartyMember
 from inventory import Inventory
-from equipment import WIZARD, WARRIOR
+from equipment import WIZARD, PALADIN, NECROMANCER, WARRIOR, KNIGHT, BEASTMASTER, RANGER, DRUID, ROGUE
 from gamescreen import LIGHT_BLUE
 from spell import *
 import pygame
@@ -121,13 +121,17 @@ PARTY_CLASS = "party_class"
 HITPOINTS = "hitpoints"
 MANA = "mana"
 DAMAGE = "damage"
+DEFENSE = "defense"
+MAGIC_RESIST = "magic_resist"
 SPEED = "speed"
 MAGIC = "magic"
 SPELLS = "spells"
+LEVEL_UP_DATA = "level_up_data"
 
 #party members
 BERNARD = "bernard"
 STEVEN = "steven"
+OLIVER = "oliver"
 
 PARTY_MEMBER_MAP = {
 	BERNARD:{
@@ -137,11 +141,186 @@ PARTY_MEMBER_MAP = {
 		MANA:10,
 		DAMAGE:1,
 		DEFENSE:0,
+		MAGIC_RESIST:2,
 		SPEED:3,
 		MAGIC:0,
-		SPELLS:[
-			SPARKS, SUMMON_GRASS_GOLEM, IVY_RAIN, SUMMON_WISP
-		]
+		SPELLS:[SPARKS, SUMMON_GRASS_GOLEM, IVY_RAIN, SUMMON_WISP],
+		LEVEL_UP_DATA:{
+			2:{
+				HITPOINTS:2,
+				MANA:2,
+				DAMAGE:1,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:1
+			},
+			3:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			4:{
+				HITPOINTS:2,
+				MANA:1,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:2				
+			},
+			5:{
+				HITPOINTS:3,
+				MANA:1,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:2,
+				SPELLS:[THUNDERIDE]			
+			},
+			6:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			7:{
+				HITPOINTS:2,
+				MANA:1,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:0				
+			},
+			8:{
+				HITPOINTS:2,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:0,
+				MAGIC:2				
+			},
+			9:{
+				HITPOINTS:3,
+				MANA:1,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:1,
+				MAGIC:1				
+			},
+			10:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:2,
+				SPELLS:[MULTISHOCK]				
+			},
+			11:{
+				HITPOINTS:1,
+				MANA:2,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:0				
+			},
+			12:{
+				HITPOINTS:2,
+				MANA:1,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:0,
+				SPEED:0,
+				MAGIC:0				
+			},
+			13:{
+				HITPOINTS:3,
+				MANA:0,
+				DAMAGE:1,
+				DEFENSE:2,
+				MAGIC_RESIST:0,
+				SPEED:0,
+				MAGIC:0			
+			},
+			14:{
+				HITPOINTS:2,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:2				
+			},
+			15:{
+				HITPOINTS:3,
+				MANA:5,
+				DAMAGE:1,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:2,
+				SPELLS:[GENTLE_TOUCH]	
+			},
+			16:{
+				HITPOINTS:3,	#TEMP
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			17:{
+				HITPOINTS:3,	#TEMP
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			18:{
+				HITPOINTS:3,	#TEMP
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			19:{
+				HITPOINTS:3,	#TEMP
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			20:{
+				HITPOINTS:3,	#TEMP
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			}			
+		}
 	},
 	STEVEN:{
 		NAME:"Steven",
@@ -150,7 +329,197 @@ PARTY_MEMBER_MAP = {
 		MANA:1,
 		DAMAGE:2,
 		DEFENSE:0,
+		MAGIC_RESIST:-1,
 		SPEED:4,
+		MAGIC:0,
+		SPELLS:[
+		],
+		LEVEL_UP_DATA:{		#ALL TEMP
+			2:{
+				HITPOINTS:2,
+				MANA:2,
+				DAMAGE:1,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:1
+			},
+			3:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			4:{
+				HITPOINTS:2,
+				MANA:1,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:2				
+			},
+			5:{
+				HITPOINTS:3,
+				MANA:1,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:2,
+				SPELLS:[THUNDERIDE]			
+			},
+			6:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			7:{
+				HITPOINTS:2,
+				MANA:1,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:0				
+			},
+			8:{
+				HITPOINTS:2,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:0,
+				MAGIC:2				
+			},
+			9:{
+				HITPOINTS:3,
+				MANA:1,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:1,
+				MAGIC:1				
+			},
+			10:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:2,
+				SPELLS:[MULTISHOCK]				
+			},
+			11:{
+				HITPOINTS:1,
+				MANA:2,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:0				
+			},
+			12:{
+				HITPOINTS:2,
+				MANA:1,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:0,
+				SPEED:0,
+				MAGIC:0				
+			},
+			13:{
+				HITPOINTS:3,
+				MANA:0,
+				DAMAGE:1,
+				DEFENSE:2,
+				MAGIC_RESIST:0,
+				SPEED:0,
+				MAGIC:0			
+			},
+			14:{
+				HITPOINTS:2,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:2				
+			},
+			15:{
+				HITPOINTS:3,
+				MANA:5,
+				DAMAGE:1,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:2,
+				SPELLS:[GENTLE_TOUCH]	
+			},
+			16:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			17:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			18:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			19:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			},
+			20:{
+				HITPOINTS:3,
+				MANA:3,
+				DAMAGE:0,
+				DEFENSE:0,
+				MAGIC_RESIST:2,
+				SPEED:1,
+				MAGIC:1				
+			}			
+		}
+	},
+	OLIVER:{
+		NAME:"Oliver",
+		PARTY_CLASS:ROGUE,
+		HITPOINTS:15,
+		MANA:2,
+		DAMAGE:4,
+		DEFENSE:0,
+		MAGIC_RESIST:0,
+		SPEED:5,
 		MAGIC:0,
 		SPELLS:[
 		]

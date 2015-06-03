@@ -16,7 +16,14 @@ class EquipmentSet:
 		value = 0
 		for i in self.equipment:
 			e = self.equipment[i]
-			if e != None: value += e.armor_value
+			if e: value += e.armor_value
+		return value
+
+	def magic_resist_value(self):
+		value = 0
+		for i in self.equipment:
+			e = self.equipment[i]
+			if e: value += e.magic_resist
 		return value
 
 	def weapon(self):

@@ -37,6 +37,9 @@ class Weapon(Equipment):
 	def init_armor_value(self, value):
 		self.armor_value = value
 
+	def init_magic_resist(self, value):
+		self.magic_resist = value
+
 	def init_speed_value(self, value):
 		self.speed_value = value
 
@@ -52,13 +55,14 @@ class Weapon(Equipment):
 	def init_dual_wield(self, value):
 		self.dual_wield = value
 
-WEAPON_ATTRIBUTES = [ NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE, ATTACK_VALUE, SPEED_VALUE, MAGIC_VALUE, MAX_HP_VALUE, MAX_MANA_VALUE, DUAL_WIELD ]
+WEAPON_ATTRIBUTES = [ NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE, MAGIC_RESIST, ATTACK_VALUE, SPEED_VALUE, MAGIC_VALUE, MAX_HP_VALUE, MAX_MANA_VALUE, DUAL_WIELD ]
 INIT_METHODS = {
 	NAME:Weapon.init_name,
 	EQUIP_SLOT:Weapon.init_equip_slot,
 	COMPATIBLE_CLASSES:Weapon.init_compatible_classes,
 	ATTACK_VALUE:Weapon.init_attack_value,
 	ARMOR_VALUE:Weapon.init_armor_value,
+	MAGIC_RESIST:Weapon.init_magic_resist,
 	SPEED_VALUE:Weapon.init_speed_value,
 	MAGIC_VALUE:Weapon.init_magic_value,
 	MAX_HP_VALUE:Weapon.init_max_hp_value,

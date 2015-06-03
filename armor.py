@@ -25,6 +25,9 @@ class Armor(Equipment):
 	def init_armor_value(self, value):
 		self.armor_value = value
 
+	def init_magic_resist(self, value):
+		self.magic_resist = value
+
 	def init_attack_value(self, value):
 		self.attack_value = value
 
@@ -40,12 +43,13 @@ class Armor(Equipment):
 	def init_magic_value(self, value):
 		self.magic_value = value
 
-ARMOR_ATTRIBUTES = [ NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE, ATTACK_VALUE, SPEED_VALUE, MAGIC_VALUE, MAX_HP_VALUE, MAX_MANA_VALUE ]
+ARMOR_ATTRIBUTES = [ NAME, EQUIP_SLOT, COMPATIBLE_CLASSES, ARMOR_VALUE, MAGIC_RESIST, ATTACK_VALUE, SPEED_VALUE, MAGIC_VALUE, MAX_HP_VALUE, MAX_MANA_VALUE ]
 INIT_METHODS = {
 	NAME:Armor.init_name,
 	EQUIP_SLOT:Armor.init_equip_slot,
 	COMPATIBLE_CLASSES:Armor.init_compatible_classes,
 	ARMOR_VALUE:Armor.init_armor_value,
+	MAGIC_RESIST:Armor.init_magic_resist,
 	ATTACK_VALUE:Armor.init_attack_value,
 	SPEED_VALUE:Armor.init_speed_value,
 	MAGIC_VALUE:Armor.init_magic_value,

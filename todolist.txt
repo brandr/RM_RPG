@@ -16,12 +16,17 @@
 # Items:
 	- make it possible to look at items in pause menu
 	- make it possible to use potions
+	- add some type of money
 
 # Spells:
 	- if we make enemies that drain MP, make it so the spell is cancelled if you can't afford it by the time you cast it
 		* did this, but it needs testing
 
-# Monsters:
-	- give monsters natural defense and detract it from attacks, same as with players
-	- add magic resistance (also for players)
-	- make sure armor value does not detract from magic damage
+# Monsters: 
+	- let monsters cast spells
+
+# party members:
+	- set up the data for bernard's last 5 levels and all of steven's levels
+
+# emojis:
+	- ~( ^ - ^ )~

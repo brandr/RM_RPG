@@ -44,7 +44,10 @@ class Monster(GameImage):
 		for e in effects: self.active_effects.append(e)
 
 	def armor_value(self):
-		return 0
+		return self.defense
+
+	def magic_resist_value(self):
+		return self.magic_resist
 
 	def stun_check(self, screen):
 		for e in self.active_effects:
