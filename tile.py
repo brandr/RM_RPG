@@ -6,12 +6,14 @@ from pygame import Rect, Color, Surface
 import random
 
 TILE_SIZE = 16
+DEFAULT_COLORKEY = Color("#FF00FF")
 
 class Tile(GameImage):
 	def __init__(self, x = 0, y = 0, key = DEFAULT):
 		GameImage.__init__(self)
 		filename = TILE_DATA_MAP[key][IMAGE_FILENAME]
 		self.default_image = load_image_file("./images", filename)
+		self.default_image.set_colorkey(DEFAULT_COLORKEY)
 		self.image = Surface((TILE_SIZE, TILE_SIZE))
 		self.image.blit(self.default_image, (0, 0))
 		self.x, self.y = x, y
@@ -69,6 +71,7 @@ MEADOW_GRASS = "meadow_grass"
 FOREST_GRASS = "forest_grass"
 CHARRED_GRASS = "charred_grass"
 BUG_GRASS = "bug_grass"
+DARK_GRASS = "dark_grass"
 
 TILE_DATA_MAP = {
 	DEFAULT:{
@@ -98,5 +101,11 @@ TILE_DATA_MAP = {
 		BACKGROUND_COLOR:Color("#CFC20E"),
 		ENCOUNTER_DATA:[(.9, ALPHA_BEETLE), (.1, BETA_BEETLE)],
 		BASE_ENCOUNTER_RATE:2.0
+	},
+	DARK_GRASS:{
+		IMAGE_FILENAME:"dark_grass_1.bmp",
+		BACKGROUND_COLOR:Color("#002500"),
+		ENCOUNTER_DATA:[(.1, SPROUTLING), (.5, SHADOW_CRAWLER), (.4, SHADOW_TWIN)],
+		BASE_ENCOUNTER_RATE:1.6
 	}
 }

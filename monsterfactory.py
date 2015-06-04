@@ -89,6 +89,8 @@ BETA_BEETLE = "beta_beetle"
 SPIKE_BADGER = "spike_badger"
 SPROUTLING = "sproutling"
 BONFIRAK = "bonfirak"
+SHADOW_CRAWLER = "shadow_crawler"
+SHADOW_TWIN = "shadow_twin"
 
 #bosses
 SVON = "svon"
@@ -170,7 +172,27 @@ MASTER_MONSTER_MAP = {
 		ITEM_DROPS:[(SHARP_CHARCOAL, .1), (CHARRED_STAFF, .05), (CHARRED_SHORT_SWORD, .05), (CHARRED_SHIELD, .05)],
 		EXP_YIELD:10
 	},
-
+	SHADOW_CRAWLER:{
+		IMAGE:"shadow_crawler_1.bmp",
+		NAME:"Shadow Crawler",
+		HITPOINTS:15,
+		DAMAGE:8,
+		DEFENSE:20,
+		MAGIC_RESIST:-5,
+		SPEED:5,
+		ITEM_DROPS:[(DARK_SCEPTER, .1), (DARK_REAPER, .01), (ORB_OF_SHADOWS, .01)],
+		EXP_YIELD:25
+	},
+	SHADOW_TWIN:{
+		IMAGE:"shadow_twin_1.bmp",
+		NAME:"Shadow Twin",
+		HITPOINTS:40,
+		DAMAGE:8,
+		DEFENSE:0,
+		SPEED:4,
+		ITEM_DROPS:[(DARK_SCEPTER, .01), (DARK_REAPER, .1), (ORB_OF_SHADOWS, .01)],
+		EXP_YIELD:25
+	},
 	#BOSSES
 	SVON:{
 		IMAGE:"svon_1.bmp",

@@ -1,5 +1,5 @@
 from camera import Camera, WIN_WIDTH, WIN_HEIGHT
-from tile import Tile, TILE_SIZE, MEADOW_GRASS, FOREST_GRASS, CHARRED_GRASS, BUG_GRASS
+from tile import Tile, TILE_SIZE, MEADOW_GRASS, FOREST_GRASS, CHARRED_GRASS, BUG_GRASS, DARK_GRASS
 from tileentity import TileEntity, HEALING_TOTEM, SVON
 from pygame import Surface
 
@@ -39,6 +39,9 @@ class World:
 		for y in range(0, WORLD_HEIGHT):
 			for x in range(WORLD_WIDTH*7/8, WORLD_WIDTH):
 				self.tiles[y][x] = Tile(x, y, CHARRED_GRASS)
+		for y in range(19, 21):
+			for x in range(38, 40):
+				self.tiles[y][x] = Tile(x, y, DARK_GRASS)
 		self.tiles[WORLD_HEIGHT/2][WORLD_WIDTH/2].set_entity(TileEntity(HEALING_TOTEM))
 		self.tiles[20][WORLD_WIDTH*15/16].set_entity(TileEntity(SVON))
 
