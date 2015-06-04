@@ -281,7 +281,7 @@ class BattleScreen(GameScreen):
 		if spell.mp_cost() > self.active_party_member().mana[0]: return
 		self.active_party_member().pending_spell = spell
 		spell_type, targeting = spell.spell_type(), spell.targeting()
-		if spell_type == ATTACK and targeting == SINGLE:	#TODO: many other cases, such as healing party members
+		if spell.select_enemy():	#TODO: many other cases, such as healing party members
 			self.mode = SELECT_TARGET
 		else:
 			self.confirm_current_action()
@@ -411,6 +411,7 @@ class TurnManager:
 		if self.level_up_check(): return
 		if self.item_drop_check(): return
 		if self.post_battle_event_check(): return
+		self.screen.player.reset_flags()
 		#TODO: update experience, item drops, etc here.
 		self.screen.exit_battle()
 
@@ -432,13 +433,10 @@ class TurnManager:
 			if self.level_up_message_flag:
 				self.screen.misc_message = p.name + " grew to level " + str(p.exp_level) + "!"
 				self.level_up_message_flag = False
+				return True
 			if p.new_spells_check():
-				if p.new_spells_flag:
-					p.new_spells_update(self.screen)
-					return True
-				else:
-					p. new_spells_flag = True
-					return True
+				if p.new_spells_flag: p.new_spells_update(self.screen)
+				else: p.new_spells_flag = True
 			else: self.level_up_index += 1
 			return True
 		return False

@@ -72,6 +72,10 @@ class Player(GameImage):
 	def refresh_tile_flags(self):
 		self.totem_contact = False
 
+	def reset_flags(self):
+		self.refresh_tile_flags()
+		for p in self.party: p.reset_flags()
+
 	def check_entity_collisions(self, tile):
 		if tile.entity:
 			self.refresh_mask()
@@ -153,7 +157,8 @@ PARTY_MEMBER_MAP = {
 				DEFENSE:0,
 				MAGIC_RESIST:1,
 				SPEED:0,
-				MAGIC:1
+				MAGIC:1,
+				SPELLS:[FIREBALL]
 			},
 			3:{
 				HITPOINTS:3,
@@ -276,49 +281,50 @@ PARTY_MEMBER_MAP = {
 				SPELLS:[GENTLE_TOUCH]	
 			},
 			16:{
-				HITPOINTS:3,	#TEMP
-				MANA:3,
+				HITPOINTS:2,
+				MANA:1,
 				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
-				SPEED:1,
-				MAGIC:1				
+				DEFENSE:1,
+				MAGIC_RESIST:1,
+				SPEED:0,
+				MAGIC:2				
 			},
 			17:{
-				HITPOINTS:3,	#TEMP
-				MANA:3,
-				DAMAGE:0,
+				HITPOINTS:1,
+				MANA:4,
+				DAMAGE:1,
 				DEFENSE:0,
 				MAGIC_RESIST:2,
 				SPEED:1,
-				MAGIC:1				
+				MAGIC:2				
 			},
 			18:{
-				HITPOINTS:3,	#TEMP
+				HITPOINTS:3,
 				MANA:3,
 				DAMAGE:0,
 				DEFENSE:0,
 				MAGIC_RESIST:2,
-				SPEED:1,
+				SPEED:0,
 				MAGIC:1				
 			},
 			19:{
-				HITPOINTS:3,	#TEMP
+				HITPOINTS:3,
 				MANA:3,
 				DAMAGE:0,
-				DEFENSE:0,
+				DEFENSE:1,
 				MAGIC_RESIST:2,
 				SPEED:1,
-				MAGIC:1				
+				MAGIC:2				
 			},
 			20:{
-				HITPOINTS:3,	#TEMP
-				MANA:3,
-				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
+				HITPOINTS:6,
+				MANA:10,
+				DAMAGE:2,
+				DEFENSE:3,
+				MAGIC_RESIST:5,
 				SPEED:1,
-				MAGIC:1				
+				MAGIC:10,
+				SPELLS:[SUMMON_STEEL_GOLEM]				
 			}			
 		}
 	},
@@ -326,97 +332,96 @@ PARTY_MEMBER_MAP = {
 		NAME:"Steven",
 		PARTY_CLASS:WARRIOR,
 		HITPOINTS:20,
-		MANA:1,
+		MANA:1,		# change to 1
 		DAMAGE:2,
 		DEFENSE:0,
 		MAGIC_RESIST:-1,
 		SPEED:4,
 		MAGIC:0,
-		SPELLS:[
-		],
-		LEVEL_UP_DATA:{		#ALL TEMP
+		#SPELLS:[SPARKLING_BLADE], #TMP	
+		LEVEL_UP_DATA:{		
 			2:{
 				HITPOINTS:2,
-				MANA:2,
+				MANA:0,
 				DAMAGE:1,
 				DEFENSE:0,
 				MAGIC_RESIST:1,
-				SPEED:0,
-				MAGIC:1
+				SPEED:1,
+				MAGIC:0
 			},
 			3:{
 				HITPOINTS:3,
-				MANA:3,
-				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
-				SPEED:1,
+				MANA:0,
+				DAMAGE:2,
+				DEFENSE:1,
+				MAGIC_RESIST:0,
+				SPEED:0,
 				MAGIC:1				
 			},
 			4:{
 				HITPOINTS:2,
-				MANA:1,
+				MANA:4,
 				DAMAGE:1,
-				DEFENSE:1,
+				DEFENSE:0,
 				MAGIC_RESIST:1,
-				SPEED:0,
-				MAGIC:2				
+				SPEED:1,
+				MAGIC:0				
 			},
 			5:{
 				HITPOINTS:3,
-				MANA:1,
-				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:1,
-				SPEED:0,
-				MAGIC:2,
-				SPELLS:[THUNDERIDE]			
-			},
-			6:{
-				HITPOINTS:3,
-				MANA:3,
-				DAMAGE:0,
-				DEFENSE:0,
+				MANA:0,
+				DAMAGE:1,
+				DEFENSE:1,
 				MAGIC_RESIST:2,
-				SPEED:1,
-				MAGIC:1				
+				SPEED:0,
+				MAGIC:1,
+				SPELLS:[WIDE_ARC]			
+			},
+			6:{		
+				HITPOINTS:1,
+				MANA:0,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:0,
+				SPEED:0,
+				MAGIC:0				
 			},
 			7:{
 				HITPOINTS:2,
-				MANA:1,
-				DAMAGE:1,
+				MANA:0,
+				DAMAGE:0,
 				DEFENSE:1,
-				MAGIC_RESIST:1,
+				MAGIC_RESIST:0,
 				SPEED:0,
 				MAGIC:0				
 			},
 			8:{
 				HITPOINTS:2,
-				MANA:3,
-				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
-				SPEED:0,
-				MAGIC:2				
-			},
-			9:{
-				HITPOINTS:3,
-				MANA:1,
+				MANA:2,
 				DAMAGE:0,
 				DEFENSE:0,
 				MAGIC_RESIST:1,
 				SPEED:1,
-				MAGIC:1				
+				MAGIC:0				
 			},
-			10:{
+			9:{
 				HITPOINTS:3,
 				MANA:3,
 				DAMAGE:1,
+				DEFENSE:0,
+				MAGIC_RESIST:0,
+				SPEED:0,
+				MAGIC:0				
+			},
+			10:{
+				HITPOINTS:3,
+				MANA:0,
+				DAMAGE:1,
 				DEFENSE:1,
-				MAGIC_RESIST:2,
+				MAGIC_RESIST:1,
 				SPEED:1,
-				MAGIC:2,
-				SPELLS:[MULTISHOCK]				
+				MAGIC:1,
+				SPELLS:[CLEAVE]				
 			},
 			11:{
 				HITPOINTS:1,
@@ -424,90 +429,91 @@ PARTY_MEMBER_MAP = {
 				DAMAGE:0,
 				DEFENSE:0,
 				MAGIC_RESIST:1,
-				SPEED:0,
+				SPEED:1,
 				MAGIC:0				
 			},
 			12:{
-				HITPOINTS:2,
-				MANA:1,
-				DAMAGE:0,
+				HITPOINTS:4,
+				MANA:3,
+				DAMAGE:1,
 				DEFENSE:0,
 				MAGIC_RESIST:0,
-				SPEED:0,
+				SPEED:2,
 				MAGIC:0				
 			},
 			13:{
 				HITPOINTS:3,
 				MANA:0,
 				DAMAGE:1,
-				DEFENSE:2,
-				MAGIC_RESIST:0,
-				SPEED:0,
+				DEFENSE:1,
+				MAGIC_RESIST:1,
+				SPEED:1,
 				MAGIC:0			
 			},
 			14:{
 				HITPOINTS:2,
 				MANA:3,
 				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:1,
-				SPEED:0,
-				MAGIC:2				
+				DEFENSE:1,
+				MAGIC_RESIST:0,
+				SPEED:1,
+				MAGIC:0				
 			},
 			15:{
-				HITPOINTS:3,
-				MANA:5,
+				HITPOINTS:5,
+				MANA:0,
 				DAMAGE:1,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
-				SPEED:1,
-				MAGIC:2,
-				SPELLS:[GENTLE_TOUCH]	
+				DEFENSE:2,
+				MAGIC_RESIST:0,
+				SPEED:3,
+				MAGIC:1,
+				SPELLS:[SPARKLING_BLADE]	
 			},
 			16:{
 				HITPOINTS:3,
-				MANA:3,
-				DAMAGE:0,
+				MANA:0,
+				DAMAGE:1,
 				DEFENSE:0,
-				MAGIC_RESIST:2,
+				MAGIC_RESIST:0,
 				SPEED:1,
-				MAGIC:1				
+				MAGIC:3				
 			},
 			17:{
 				HITPOINTS:3,
-				MANA:3,
+				MANA:0,
 				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
+				DEFENSE:1,
+				MAGIC_RESIST:1,
 				SPEED:1,
 				MAGIC:1				
 			},
 			18:{
-				HITPOINTS:3,
-				MANA:3,
-				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
+				HITPOINTS:2,
+				MANA:5,
+				DAMAGE:1,
+				DEFENSE:1,
+				MAGIC_RESIST:0,
 				SPEED:1,
-				MAGIC:1				
+				MAGIC:0				
 			},
 			19:{
 				HITPOINTS:3,
-				MANA:3,
-				DAMAGE:0,
+				MANA:0,
+				DAMAGE:1,
 				DEFENSE:0,
-				MAGIC_RESIST:2,
-				SPEED:1,
-				MAGIC:1				
+				MAGIC_RESIST:1,
+				SPEED:2,
+				MAGIC:3				
 			},
 			20:{
-				HITPOINTS:3,
-				MANA:3,
-				DAMAGE:0,
-				DEFENSE:0,
-				MAGIC_RESIST:2,
-				SPEED:1,
-				MAGIC:1				
+				HITPOINTS:10,
+				MANA:0,
+				DAMAGE:3,
+				DEFENSE:1,
+				MAGIC_RESIST:1,
+				SPEED:3,
+				MAGIC:2,
+				SPELLS:[EVISCERATE]				
 			}			
 		}
 	},

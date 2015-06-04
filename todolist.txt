@@ -1,12 +1,14 @@
 # World todos:
 	- Draw/process only the tiles and objects that are on-screen.
 	- Use the minecraft trick of loading parts of the world before the player reaches them.
+	- add impassable blocks
 
 # Encounter todos:
 	- make sure the player can venture onto places with no tiles without crashing the game
 	- if game gets laggy, only roll for monster encounters every few seconds but increase chance of encounter
 
 # combat todos:
+	- add "shrug off" messages for spells/summon attacks that do 0 damage
 	- make it so if a message is too long, it will be split into multiple lines
 	- make it so party members will choose a new target at random if the one they were going to attack is dead
 	- make running away a special case for executed actions (since it will execute immediately)
@@ -21,12 +23,14 @@
 # Spells:
 	- if we make enemies that drain MP, make it so the spell is cancelled if you can't afford it by the time you cast it
 		* did this, but it needs testing
+	- make single-target healing
 
 # Monsters: 
 	- let monsters cast spells
 
 # party members:
-	- set up the data for bernard's last 5 levels and all of steven's levels
+	- set up the data for all of steven's levels
 
 # emojis:
 	- ~( ^ - ^ )~
+	- \( o . O )/

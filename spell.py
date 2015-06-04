@@ -25,25 +25,57 @@ class Spell:
 			for d in effect_data: effects.append(BattleEffect(d[0], d[1]))
 		return effects
 
+	def select_enemy(self):
+		data_map = SPELL_DATA_MAP[self.key]
+		if data_map[TARGETING] == SINGLE:
+			if data_map[SPELL_TYPE] != RESTORE and data_map[SPELL_TYPE] != SUMMON: return True
+		return False
+
 	def execute_action(self, screen):
-		if self.targeting() == MULTIPLE and self.spell_type() == ATTACK:
-			target = self.targets[self.target_index]
-			damage = self.roll_damage(self.caster, target)
-			screen.misc_message = self.name() + " hit " + target.battle_name + " for " + str(damage) + " damage!"
-			target.take_damage(damage)
-			target.add_effects(self.effects())
-			if target.hitpoints[0] > 0: self.target_index += 1
-		if self.targeting() == MULTIPLE and self.spell_type() == RESTORE:
-			target = self.targets[self.target_index]
-			restore_type, restore_power = SPELL_DATA_MAP[self.key][RESTORE_TYPE], SPELL_DATA_MAP[self.key][RESTORE_POWER]
-			restore_power += self.caster.magic
-			if restore_type == HITPOINTS:
-				screen.misc_message = target.battle_name + " regained " + str(restore_power) + " health!"
-				target.restore_hitpoints(restore_power)
-			if restore_type == MANA:
-				screen.misc_message = target.battle_name + " regained " + str(restore_power) + " mana!"
-				target.restore_mana(restore_power)
-			self.target_index += 1
+		if self.spell_type() in EXECUTE_SPELL_MAP:
+			targeting_map = EXECUTE_SPELL_MAP[self.spell_type()]
+			if self.targeting() in targeting_map: 
+				method = targeting_map[self.targeting()]
+				method(self, screen)
+
+	def execute_multiple_attack(self, screen):
+		target = self.targets[self.target_index]
+		damage = self.roll_damage(self.caster, target)
+		if damage <= 0: screen.misc_message = self.name() + " hit " + target.battle_name + ", but they were unfazed."
+		else: screen.misc_message = self.name() + " hit " + target.battle_name + " for " + str(damage) + " damage!"
+		target.take_damage(damage)
+		target.add_effects(self.effects())
+		if target.hitpoints[0] > 0: self.target_index += 1
+
+	def execute_multiple_magic_weapon(self, screen):
+		target = self.targets[self.target_index]
+		damage = self.roll_magic_weapon_damage(self.caster, target)
+		if damage <= 0: screen.misc_message = self.name() + " hit " + target.battle_name + ", but they were unfazed."
+		else: screen.misc_message = self.name() + " hit " + target.battle_name + " for " + str(damage) + " damage!"
+		target.take_damage(damage)
+		target.add_effects(self.effects())
+		if target.hitpoints[0] > 0: self.target_index += 1
+
+	def execute_multiple_restore(self, screen):
+		target = self.targets[self.target_index]
+		restore_type, restore_power = SPELL_DATA_MAP[self.key][RESTORE_TYPE], SPELL_DATA_MAP[self.key][RESTORE_POWER]
+		restore_power += self.caster.magic
+		if restore_type == HITPOINTS:
+			screen.misc_message = target.battle_name + " regained " + str(restore_power) + " health!"
+			target.restore_hitpoints(restore_power)
+		if restore_type == MANA:
+			screen.misc_message = target.battle_name + " regained " + str(restore_power) + " mana!"
+			target.restore_mana(restore_power)
+		self.target_index += 1
+
+	def execute_multiple_weapon(self, screen):
+		target = self.targets[self.target_index]
+		damage = self.roll_damage(self.caster, target, True)
+		if damage <= 0: screen.misc_message = self.name() + " hit " + target.battle_name + " , but they were unfazed."
+		else: screen.misc_message = self.name() + " hit " + target.battle_name + " for " + str(damage) + " damage!"
+		target.take_damage(damage)
+		target.add_effects(self.effects())
+		if target.hitpoints[0] > 0: self.target_index += 1
 
 	def cast(self, caster, screen):
 		self.caster = caster
@@ -56,17 +88,34 @@ class Spell:
 		method(self, caster, screen)
 		caster.lose_mp(self.mp_cost())
 
-	def roll_damage(self, caster, target):
-		base_attack = SPELL_DATA_MAP[self.key][DAMAGE] + caster.magic #TODO: calculate differently as spells get more complex 
+	def roll_damage(self, caster, target, weapon = False):
+		base_attack = SPELL_DATA_MAP[self.key][DAMAGE]
+		if weapon: base_attack += (caster.attack_stat + caster.equipment_damage())
+		else: base_attack += caster.magic
 		offset = max(1, base_attack/5.0)
 		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
-		damage = max(0, damage - target.magic_resist_value())
+		if weapon: damage -= target.armor_value()
+		else: damage -= target.magic_resist_value()
+		damage = max(0, damage)
 		return damage
 
+	def roll_magic_weapon_damage(self, caster, target):
+		base_attack = SPELL_DATA_MAP[self.key][DAMAGE]
+		base_attack += (caster.attack_stat + caster.equipment_damage())
+		base_attack += caster.magic
+		offset = max(1, base_attack/5.0)
+		damage = max(1, random.randint(round(base_attack - offset), round(base_attack + offset)))
+		damage -= target.armor_value()
+		damage -= target.magic_resist_value()
+		damage = max(0, damage)
+		return damage
+
+	# ATTACK
 	def cast_single_attack(self, caster, screen):
 		target = caster.pending_target
 		damage = self.roll_damage(caster, target)
-		screen.misc_message = caster.name + " cast " + self.name() + " at " + target.name + " for " + str(damage) + " damage!"
+		if damage <= 0: screen.misc_message = caster.name + " cast " + self.name() + " at " + target.name + ", but they were unfazed."
+		else: screen.misc_message = caster.name + " cast " + self.name() + " at " + target.name + " for " + str(damage) + " damage!"
 		target.take_damage(damage)
 		target.add_effects(self.effects())
 
@@ -77,11 +126,32 @@ class Spell:
 		screen.enqueue_spell_set(self, targets)
 		screen.misc_message = caster.name + " cast " + self.name() + "!"
 
+	# MAGIC WEAPON
+	def cast_single_magic_weapon(self, caster, screen):
+		target = caster.pending_target
+		damage = self.roll_magic_weapon_damage(caster, target)
+		if damage <= 0: screen.misc_message = caster.name + " cast " + self.name() + " at " + target.battle_name + ", but they were unfazed."
+		else: screen.misc_message = caster.name + " cast " + self.name() + " at " + target.battle_name + " for " + str(damage) + " damage!"
+		target.take_damage(damage)
+		target.add_effects(self.effects())
+
+	def cast_multiple_magic_weapon(self, caster, screen):
+		targets = screen.monsters.monsters
+		self.targets = targets
+		self.target_index = 0
+		screen.enqueue_spell_set(self, targets)
+		screen.misc_message = caster.name + " cast " + self.name() + "!"
+
+	# SUMMON
 	def cast_summon(self, caster, screen):
 		summon_map = SPELL_DATA_MAP[self.key][SUMMON_DATA]
 		screen.misc_message = caster.name + " summoned " + summon_map[NAME] + "!"
 		creature = Summon(summon_map)
 		screen.player.summons.append(creature)
+
+	# RESTORE
+	def cast_single_restore(self, caster, screen):
+		pass #TODO
 
 	def cast_multiple_restore(self, caster, screen):
 		targets = []
@@ -92,6 +162,23 @@ class Spell:
 		screen.enqueue_spell_set(self, targets)
 		screen.misc_message = caster.name + " cast " + self.name() + "!"
 
+	# WEAPON
+	def cast_single_weapon(self, caster, screen):
+		target = caster.pending_target
+		damage = self.roll_damage(caster, target, True)
+		if damage <= 0: caster.name + "attacked " + target.battle_name + " with " + self.name() + ", but they were unfazed."
+		else: screen.misc_message = caster.name + " used " + self.name() + " on " + target.name + " for " + str(damage) + " damage!"
+		target.take_damage(damage)
+		target.add_effects(self.effects())
+
+	def cast_multiple_weapon(self, caster, screen):
+		targets = screen.monsters.monsters
+		self.targets = targets
+		self.target_index = 0
+		screen.enqueue_spell_set(self, targets)
+		screen.misc_message = caster.name + " used " + self.name() + "!"
+
+	# spell fail message
 	def spell_fail(self, caster, screen):
 		screen.misc_message = caster.name + " tried to cast " + self.name() + ", but failed!"
 
@@ -111,6 +198,7 @@ class Summon(PartyMember):
 		for key in spells: self.spells.append(Spell(key))
 		self.attack_stat = data_map[DAMAGE]
 		self.defense = data_map[DEFENSE]
+		self.magic_resist = data_map[MAGIC_RESIST]
 		self.speed = data_map[SPEED]
 		self.magic = data_map[MAGIC]
 		self.pending_action = None
@@ -124,8 +212,10 @@ class Summon(PartyMember):
 		return 0
 
 	def armor_value(self):
-		return 0
-		#return self.defense
+		return self.defense
+
+	def magic_resist_value(self):
+		return self.magic_resist
 
 # attributes
 NAME = "name"
@@ -145,6 +235,8 @@ MULTIPLE = "multiple"
 
 # spell types
 ATTACK = "attack"
+WEAPON = "weapon"
+MAGIC_WEAPON = "magic_weapon"
 SUMMON = "summon"
 RESTORE = "restore"
 
@@ -154,12 +246,14 @@ MANA = "mana"
 SPEED = "speed"
 MAGIC = "magic"
 DEFENSE = "defense"
+MAGIC_RESIST = "magic_resist"
 SPELLS = "spells"
 
-# spells
+# bernard spells
 FIRE = "fire"
 SPARKS = "sparks"
 SUMMON_GRASS_GOLEM = "summon_grass_golem"
+FIREBALL = "fireball"
 SUMMON_WISP = "summon_wisp"
 GRASS_ENTANGLEMENT = "grass_entanglement"
 IVY_RAIN = "ivy_rain"
@@ -168,21 +262,55 @@ MANA_BALL = "mana_ball"
 THUNDERIDE = "thunderide"
 MULTISHOCK = "multishock"
 GENTLE_TOUCH = "gentle_touch"
+SUMMON_STEEL_GOLEM = "summon_steel_golem"
+RISING_STEEL_SPIKES = "rising_steel_spikes"
+STEEL_ENTRAP = "steel_entrap"
+
+# steven spells
+WIDE_ARC = "wide_arc"
+CLEAVE = "cleave"
+SPARKLING_BLADE = "sparkling_blade"
+EVISCERATE = "eviscerate"
 
 CAST_MAP = {
 	ATTACK:{
 		SINGLE:Spell.cast_single_attack,
 		MULTIPLE:Spell.cast_multiple_attack
 	},
+	MAGIC_WEAPON:{
+		SINGLE:Spell.cast_single_magic_weapon,
+		MULTIPLE:Spell.cast_multiple_magic_weapon
+	},
 	SUMMON:{
 		SINGLE:Spell.cast_summon
 	},
 	RESTORE:{
+		SINGLE:Spell.cast_single_restore,
 		MULTIPLE:Spell.cast_multiple_restore
+	},
+	WEAPON:{
+		SINGLE:Spell.cast_single_weapon,
+		MULTIPLE:Spell.cast_multiple_weapon
+	}
+}
+
+EXECUTE_SPELL_MAP = {
+	ATTACK:{
+		MULTIPLE:Spell.execute_multiple_attack
+	},
+	MAGIC_WEAPON:{
+		MULTIPLE:Spell.execute_multiple_magic_weapon
+	},
+	RESTORE:{
+		MULTIPLE:Spell.execute_multiple_restore
+	},
+	WEAPON:{
+		MULTIPLE:Spell.execute_multiple_weapon
 	}
 }
 
 SPELL_DATA_MAP = {
+	# Bernard
 	FIRE:{
 		NAME:"Fire",
 		TARGETING:SINGLE,
@@ -209,11 +337,19 @@ SPELL_DATA_MAP = {
 			DAMAGE:3,
 			MAGIC:0,
 			DEFENSE:0,
+			MAGIC_RESIST:0,
 			SPEED:1,
 			SPELLS:[
 				GRASS_ENTANGLEMENT
 			]
 		}
+	},
+	FIREBALL:{
+		NAME:"Fireball",
+		TARGETING:SINGLE,
+		SPELL_TYPE:ATTACK,
+		MP_COST:2,
+		DAMAGE:8
 	},
 	SUMMON_WISP:{
 		NAME:"Summon Wisp",
@@ -227,6 +363,7 @@ SPELL_DATA_MAP = {
 			DAMAGE:1,
 			MAGIC:0,
 			DEFENSE:0,
+			MAGIC_RESIST:0,
 			SPEED:20,
 			SPELLS:[
 				WISP_RESTORE, MANA_BALL
@@ -296,6 +433,71 @@ SPELL_DATA_MAP = {
 		RESTORE_TYPE:HITPOINTS,
 		MP_COST:5,
 		RESTORE_POWER:3
+	},
+	SUMMON_STEEL_GOLEM:{
+		NAME:"Summon Steel Golem",
+		TARGETING:SINGLE,
+		SPELL_TYPE:SUMMON,
+		MP_COST:30,
+		SUMMON_DATA:{
+			NAME:"S. Golem",
+			HITPOINTS:150,
+			MANA:10,
+			DAMAGE:40,
+			MAGIC:0,
+			DEFENSE:50,
+			MAGIC_RESIST:0,
+			SPEED:0,
+			SPELLS:[
+				RISING_STEEL_SPIKES, STEEL_ENTRAP
+			]
+		},
+	},
+	RISING_STEEL_SPIKES:{
+		NAME:"Rising Steel Spikes",
+		TARGETING:SINGLE,
+		SPELL_TYPE:ATTACK,
+		MP_COST:10,
+		DAMAGE:100,
+	},
+	STEEL_ENTRAP:{
+		NAME:"Steel Entrap",
+		TARGETING:SINGLE,
+		SPELL_TYPE:ATTACK,
+		MP_COST:10,
+		DAMAGE:5,
+		EFFECTS:[
+			(STUN, 100)
+		]
+	},
+	#steven
+	WIDE_ARC:{
+		NAME:"Wide Arc",
+		TARGETING:MULTIPLE,
+		SPELL_TYPE:WEAPON,
+		MP_COST:5,
+		DAMAGE:-2
+	},
+	CLEAVE:{
+		NAME:"Cleave",
+		TARGETING:SINGLE,
+		SPELL_TYPE:WEAPON,
+		MP_COST:5,
+		DAMAGE:5
+	},
+	SPARKLING_BLADE:{
+		NAME:"Sparkling Blade",
+		TARGETING:SINGLE,
+		SPELL_TYPE:MAGIC_WEAPON,
+		MP_COST:5,
+		DAMAGE:1
+	},
+	EVISCERATE:{
+		NAME:"Eviscerate",
+		TARGETING:SINGLE,
+		SPELL_TYPE:WEAPON,
+		MP_COST:20,
+		DAMAGE:200
 	}
 }
 

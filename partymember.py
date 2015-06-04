@@ -34,7 +34,7 @@ class PartyMember:
 		self.pending_target = None
 		self.pending_spell = None
 		self.new_spells_flag = False
-		self.new_spells = None
+		self.new_spells = []
 		self.new_spell_index = 0
 
 	def name(self):
@@ -95,11 +95,7 @@ class PartyMember:
 		if self.new_spells:
 			if self.new_spell_index < len(self.new_spells): return True		
 			return False
-		if not self.exp_level in self.level_up_data: return False
-		data_map = self.level_up_data[self.exp_level]
-		if not SPELLS in data_map: return False
-		self.new_spells = data_map[SPELLS]
-		return True
+		return False
 
 	def new_spells_update(self, screen):
 		if not self.new_spells: return
@@ -108,11 +104,11 @@ class PartyMember:
 		self.new_spell_index += 1
 
 	def level_up_check(self):
-		if self.experience[0] >= self.experience[1]:
+		if self.experience[0] < self.experience[1]: return False
+		while self.experience[0] >= self.experience[1]:
 			self.exp_level += 1
-			self.experience[0] = 0
-			if self.exp_level >= EXP_CAP: self.experience[1] = 999999999999
-			else: self.experience[1] = EXP_COST_MAP[self.exp_level + 1]
+			if self.exp_level >= EXP_CAP: self.experience[1] = 999999999
+			else: self.experience[1] += EXP_COST_MAP[self.exp_level + 1]
 			if not self.exp_level in self.level_up_data: return
 			data_map = self.level_up_data[self.exp_level]
 			self.hitpoints[1] += data_map[HITPOINTS]
@@ -122,12 +118,22 @@ class PartyMember:
 			self.magic_resist += data_map[MAGIC_RESIST]
 			self.speed += data_map[SPEED]
 			self.magic += data_map[MAGIC]
-			if SPELLS in data_map: self.learn_spells(data_map[SPELLS])
-			return True
-		return False
+			if SPELLS in data_map: 
+				self.learn_spells(data_map[SPELLS])
+				for d in data_map[SPELLS]: self.new_spells.append(d)
+			#return True
+		return True
 
 	def learn_spells(self, spell_keys):
 		for k in spell_keys: self.spells.append(self.spell_factory.generate_spell(k))
+
+	def reset_flags(self):
+		self.new_spells = []
+		self.new_spells_flag = False
+		self.new_spell_index = 0
+		self.pending_action = None
+		self.pending_target = None
+		self.pending_spell = None
 
 ACTION_MAP = {
 	ATTACK:PartyMember.basic_attack,

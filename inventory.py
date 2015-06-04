@@ -4,7 +4,7 @@ from weapon import Weapon
 
 class Inventory:
 	def __init__(self):
-		self.items = [Weapon("shepherds_stick")] 
+		self.items = [] 
 
 	def item_count(self):
 		return len(self.items)
